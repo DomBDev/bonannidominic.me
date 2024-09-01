@@ -1,61 +1,57 @@
 # bonannidominic.me
 
-Welcome to the repository for my new portfolio website! This project is designed to showcase my skills and experience as a Full Stack Web Developer, using modern web technologies like React.js, Express.js, Node.js, and Tailwind CSS.
+Welcome to the repository for my portfolio website! This project showcases my skills and experience as a Full Stack Web Developer, using modern web technologies like React.js, Express.js, Node.js, and Tailwind CSS.
 
 ## Project Overview
 
-The goal of this project is to create a personal portfolio website that effectively highlights my journey, skills, and accomplishments in web development, programming, and related fields. This website will serve as a central hub for potential employers, collaborators, and others interested in my work.
+The goal of this project is to create a personal portfolio website that effectively highlights my journey, skills, and accomplishments in web development, programming, and related fields. This website serves as a central hub for potential employers, collaborators, and others interested in my work.
+
+## Current Status
+
+### Frontend
+
+- **Home Page:** Basic template implemented.
+- **ScrollNav:** Interactive ScrollNav element created.
+- **Navbar:** Initial version created; plans to improve it further.
+- **Projects Page:** Started with a basic layout. Plans to add an interactive modal with multiple popover pages or a separate page for each project when expanded.
+- **About Page:** Not started yet. The goal is to make it an "arcade" that showcases fun skills and unique features, potentially using 3D or other interesting implementations.
+- **Contact Form:** Simple, functional contact form for inquiries.
+
+### Backend
+
+- **Planned:** Backend implementation will start once the frontend is completed. It will handle server-side logic, API endpoints, and integration with external services.
+
+## Future Plans
+
+- **Backend Implementation:**
+  - Handle contact form submissions.
+  - Create editable projects section.
+  - Develop an editable page for sharing insights and updates (not exactly a blog).
+
+- **Frontend Enhancements:**
+  - Improve the Navbar for better user experience.
+  - Complete the About Page with engaging and interactive elements.
+  - Develop an "arcade" style About Page to showcase fun skills and unique features, possibly using 3D or other implementations.
+  - Demos Section for live on page JS demos.
+
+- **Additional Features:**
+  - Implement a blog-like feature to share insights and updates.
+  - Regularly update the site with new projects and content.
 
 ## Tech Stack
 
 - **Frontend:** React.js, Tailwind CSS
-- **Backend:** Node.js, Express.js
+- **Backend:** Node.js, Express.js, MongoDB (planned)
 - **Deployment:** DigitalOcean, Nginx
 - **Other Tools:** Git, GitHub, VS Code, Debian
 
 ## Features
 
-- **Responsive Design:** The site will be fully responsive, providing a seamless experience on desktop, tablet, and mobile devices.
-- **Project Showcase:** A detailed section highlighting key projects, with links to GitHub repositories and live demos.
-- **Timeline:** A timeline feature to illustrate the key milestones in my journey as a developer.
-- **Contact Form:** A simple, functional contact form for inquiries.
+- **Responsive Design:** Fully responsive, providing a seamless experience on desktop, tablet, and mobile devices.
+- **Project Showcase:** Detailed section highlighting key projects, with links to GitHub repositories and live demos.
+- **Timeline:** Illustrates key milestones in my journey as a developer.
+- **Contact Form:** Simple, functional contact form for inquiries.
 - **Resume Download:** Option to download my resume in PDF format.
-
-## Planning & Development Steps
-
-1. **Design the Layout:**
-   - Sketch initial wireframes for the website.
-   - Choose a color palette and typography that reflects my personal brand.
-   - Plan the layout for key sections: Home, About, Skills, Projects, Timeline, and Contact.
-
-2. **Set Up the Development Environment:**
-   - Initialize the GitHub repository.
-   - Set up the project with React.js, Tailwind CSS, and Node.js.
-   - Configure the development environment, including linting and code formatting tools.
-
-3. **Develop the Frontend:**
-   - Implement the overall structure of the website using React.js.
-   - Style the components with Tailwind CSS for a clean, modern look.
-   - Ensure the site is fully responsive and accessible.
-
-4. **Develop the Backend:**
-   - Set up Express.js to handle server-side logic.
-   - Implement API endpoints for the contact form and other dynamic content.
-   - Integrate with external services (e.g., email notifications for form submissions).
-
-5. **Test & Debug:**
-   - Perform thorough testing across different browsers and devices.
-   - Debug any issues related to performance, responsiveness, or functionality.
-
-6. **Deploy the Website:**
-   - Prepare the site for deployment by building the production version.
-   - Deploy the website on DigitalOcean using Nginx as the web server.
-   - Set up continuous integration/continuous deployment (CI/CD) for smooth updates.
-
-7. **Launch & Iterate:**
-   - Announce the launch of the website on social media and relevant platforms.
-   - Collect feedback and make iterative improvements based on user input.
-   - Regularly update the site with new projects and content.
 
 ## My Path So Far
 
