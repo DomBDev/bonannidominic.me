@@ -20,7 +20,7 @@ const ScrollNav = ({ sections, currentSection }) => {
           >
             {currentSection === section && (
               <motion.span
-                layoutId="dot" // This ensures the dot transitions smoothly
+                layoutId="dot"
                 className="absolute left-[-20px] w-2 h-2 rounded-full bg-[#6dabca]"
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               />

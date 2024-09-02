@@ -123,24 +123,24 @@ const ProfileCard = () => {
       <p className="text-gray-300 mb-4 text-center">
         Passionate about building innovative solutions and exploring new technologies.
       </p>
-      <div className="grid grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-rows-3 sm:grid-cols-3 sm:grid-rows-1 gap-4 mb-4 justify-center">
         <div className="bg-black rounded-lg shadow-lg p-3 text-center transform transition hover:bg-primary duration-300 group relative">
-          <h3 className="text-lg text-white font-semibold">Portfolio Views</h3>
-          <p className="text-2xl text-green-400 group-hover:text-black transition duration-300 font-bold">{viewCount}</p>
+          <h3 className="text-sm sm:text-md md:text-lg text-white font-semibold">Portfolio Views</h3>
+          <p className="text-xl md:text-2xl text-green-400 group-hover:text-black transition duration-300 font-bold">{viewCount}</p>
           <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             Represents the total number of views on my portfolio, showcasing interest and engagement.
           </div>
         </div>
         <div className="bg-black rounded-lg shadow-lg p-3 text-center transform transition hover:bg-primary duration-300 group relative">
-          <h3 className="text-lg text-white font-semibold">Completed Projects</h3>
-          <p className="text-2xl text-yellow-400 group-hover:text-black transition duration-300 font-bold">{completedProjectsCount}</p>
+          <h3 className="text-sm sm:text-md md:text-lg text-white font-semibold">Completed Projects</h3>
+          <p className="text-xl md:text-2xl text-yellow-400 group-hover:text-black transition duration-300 font-bold">{completedProjectsCount}</p>
           <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             Indicates the number of personal projects successfully completed, reflecting hands-on experience and dedication.
           </div>
         </div>
         <div className="bg-black rounded-lg shadow-lg p-3 text-center transform transition hover:bg-primary duration-300 group relative">
-          <h3 className="text-lg text-white font-semibold">Years of Experience</h3>
-          <p className="text-2xl text-blue-400 group-hover:text-black transition duration-300 font-bold">{yearsOfExperience}</p>
+          <h3 className="text-sm sm:text-md md:text-lg text-white font-semibold">Years of Experience</h3>
+          <p className="text-xl md:text-2xl text-blue-400 group-hover:text-black transition duration-300 font-bold">{yearsOfExperience}</p>
           <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             Years of experience reflect my commitment to learning and self-development in the field, rather than formal employment history.
           </div>
@@ -191,7 +191,7 @@ const Interests = () => {
 
 const Welcome = () => {
   return (
-    <section id="welcome" className="min-h-screen flex flex-col bg-gradient-to-br from-[#151515] via-[#181424] to-[#011024] relative w-full h-full sm:px-16 md:px-32 lg:px-48">
+    <section id="welcome" className="min-h-screen flex flex-col bg-gradient-to-br from-[#151515] via-[#181424] to-[#011024] relative w-full h-full md:px-6 lg:px-30">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-tr from-primary to-secondary opacity-30 mix-blend-multiply" />
         <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tr from-accent to-background opacity-40 blur-lg" />
@@ -199,7 +199,7 @@ const Welcome = () => {
 
       <div className="relative z-10 flex flex-col flex-grow">
         {/* Upper Div */}
-        <div className="flex flex-col flex-grow 2xl:flex-row gap-4">
+        <div className="flex flex-col flex-grow xl:flex-row gap-4">
           {/* Left Section */}
           <div className="flex-1 flex flex-col items-start justify-center px-6 pt-24">
             <motion.div 
@@ -207,8 +207,9 @@ const Welcome = () => {
               initial={{ opacity: 0, x: -100 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-6xl md:text-8xl font-bold text-primary drop-shadow-lg">
-                Hello, I'm Dominic.
+              <h1 className="text-6xl md:text-8xl font-bold text-primary drop-shadow-lg max-w-xl xl:max-w-full">
+                Hello, I'm Dominic
+                <span className="bg-gradient-to-br from-accent via-highlight to-secondary bg-clip-text text-transparent">.</span>
               </h1>
               <p className="mt-4 text-2xl md:text-3xl text-text max-w-xl drop-shadow-lg pl-1">
                 Full Stack Web Developer - Tech Enthusiast

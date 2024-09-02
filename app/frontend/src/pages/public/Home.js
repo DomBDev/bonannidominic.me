@@ -6,7 +6,7 @@ import Welcome from '../../components/common/Welcome';
 import SkillsSection from '../../components/common/SkillsSection';
 
 const Home = () => {
-  const [currentSection, setCurrentSection] = useState('home');
+  const [currentSection, setCurrentSection] = useState('');
   const [sections, setSections] = useState([]);
   const [isScrolling, setIsScrolling] = useState(false);
 
@@ -35,6 +35,9 @@ const Home = () => {
     const sectionElements = document.querySelectorAll('section');
     const sectionIds = Array.from(sectionElements).map(section => section.getAttribute('id'));
     setSections(sectionIds);
+    if (sectionIds.length > 0) {
+      setCurrentSection(sectionIds[0]);
+    }
   }, []);
 
   const handleSetActive = (to) => {
@@ -42,7 +45,6 @@ const Home = () => {
     setCurrentSection(to);
     setTimeout(() => setIsScrolling(false), 1000);
   };
-
   return (
     <div className="bg-background text-text font-sans leading-relaxed flex flex-col items-center justify-center min-h-screen">
       {/* Welcome Section */}
@@ -50,23 +52,6 @@ const Home = () => {
 
       {/* Skills Section */}
       <SkillsSection />
-
-      {/* About Section */}
-      <section id="about" className="min-h-screen flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-          className="text-center max-w-2xl"
-        >
-          <h2 className="text-4xl font-bold text-primary">About Me</h2>
-          <p className="mt-4 text-lg md:text-xl text-text">
-            I'm Dominic [name], a Full Stack Developer with a passion for creating interactive and dynamic web applications.
-            With a background in computer science and web development, I blend creativity with technical expertise to deliver
-            memorable digital experiences.
-          </p>
-        </motion.div>
-      </section>
 
       {/* Portfolio Section */}
       <section id="portfolio" className="min-h-screen flex items-center justify-center bg-background">

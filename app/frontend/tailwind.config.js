@@ -17,15 +17,28 @@ module.exports = {
       },
       animation: {
         marquee: 'marquee 40s linear infinite',
+        glare: 'glare 2s infinite',
       },
       keyframes: {
         marquee: {
           '0%': { transform: 'translateX(0%)' },
           '100%': { transform: 'translateX(-100%)' },
-        }
+        },
+        glare: {
+          '0%': {
+            transform: 'translateX(-100%)',
+            opacity: 0,
+          },
+          '50%': {
+            opacity: 0.5,
+          },
+          '100%': {
+            transform: 'translateX(100%)',
+            opacity: 0,
+          },
+        },
       },
     },
   },
-  plugins: [
-  ],
+  plugins: [],
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-// Core Skills Data
 const coreSkills = [
       { name: "Full Stack Development", description: "Expertise in both client-side and server-side technologies.", icon: "fas fa-code" },
       { name: "Database Management", description: "Proficient in SQL and NoSQL databases.", icon: "fas fa-database" },
@@ -11,7 +10,6 @@ const coreSkills = [
       { name: "Cross-Platform Development", description: "Building applications that run on multiple platforms and devices.", icon: "fas fa-desktop" },
     ];
 
-// Skills Data
 const skillsData = [
       {
         category: "Programming Languages",
@@ -114,7 +112,7 @@ const SkillsSection = () => {
             className="bg-muted rounded-lg shadow-lg p-6"
           >
             <h3 className="text-2xl font-semibold text-primary mb-6 text-center">{activeCategory}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {skillsData
                 .find((category) => category.category === activeCategory)
                 .skills.map((skill, index) => (
