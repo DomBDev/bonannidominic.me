@@ -14,7 +14,7 @@ const ContactSection = () => {
                 <h2 className="text-4xl font-bold text-primary">Get In Touch</h2>
                 <div className="flex justify-center space-x-4 mt-4">
                     <motion.a
-                        href="https://github.com/yourusername"
+                        href="https://github.com/DomBDev"
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.2 }}
@@ -24,7 +24,7 @@ const ContactSection = () => {
                         <FaGithub className="text-3xl" />
                     </motion.a>
                     <motion.a
-                        href="https://linkedin.com/in/yourusername"
+                        href="https://linkedin.com/in/bonanni-dominic"
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.2 }}
@@ -34,7 +34,7 @@ const ContactSection = () => {
                         <FaLinkedin className="text-3xl" />
                     </motion.a>
                     <motion.a
-                        href="https://twitter.com/yourusername"
+                        href="https://twitter.com/DomBDev"
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.2 }}
@@ -44,21 +44,25 @@ const ContactSection = () => {
                         <FaTwitter className="text-3xl" />
                     </motion.a>
                     <motion.a
-                        href="/path/to/your/resume.pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="text-white hover:text-highlight transition duration-300 relative group"
+                    href="/WebResume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="relative group"
+                >
+                    <motion.div
+                    initial={{ rotate: 0 }}
+                    animate={{ rotate: [0, 35, -35, 0] }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                    className="text-highlight hover:text-primary transition duration-300"
                     >
-                        <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center space-x-2 transition-transform duration-300 hover:scale-105 shadow-lg px-2">
-                            <FaFilePdf className="text-3xl" />
-                            <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                Click to view my resume!
-                            </div>
-                            <span className="font-semibold">Resume</span>
-                        </div>
-                    </motion.a>
+                        <FaFilePdf className="text-3xl" />
+                    </motion.div>
+                    <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    View/Download Resume
+                    </div>
+                </motion.a>
                 </div>
                 <p className="mt-4 text-lg md:text-xl text-text">
                     I'm always open to discussing new projects or opportunities. Feel free to reach out via email or connect with me on social media.
@@ -87,7 +91,7 @@ const ContactSection = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full p-2 rounded-lg bg-secondary text-text font-bold hover:bg-secondary transition duration-300"
+                        className="w-full p-2 rounded-lg bg-secondary text-text font-bold hover:bg-primary transition duration-300"
                     >
                         Send Message
                     </button>
