@@ -13,6 +13,7 @@ module.exports = {
         highlight: '#8e7cc3', // Additional accent color (mellow purple)
         darkblue: '#1a1a2e', // Dark blue for contrast
         darkpurple: '#2e2e46', // Dark purple for contrast
+        darkgreen: '#2e2e2e', // Dark green for contrast
         muted: '#2e2e2e', // Darker background for contrast
       },
       animation: {

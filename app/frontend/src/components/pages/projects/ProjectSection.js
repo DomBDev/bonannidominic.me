@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import { FaGlobe, FaLock } from 'react-icons/fa';
 
 const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
   const [isOpen, setIsOpen] = useState();
@@ -16,13 +16,13 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
   };
 
   return (
-    <section className="relative z-10 bg-background border-t-8 border-background">
+    <section className="relative z-10 border-t-8 border-background">
       <div className="grid grid-cols-1">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.75, delay: 0.2, ease: 'easeInOut' }}
-          className="bg-gradient-to-r from-[#181424] from-5% via-muted via-50% to-[#011024] shadow-lg p-4 flex justify-center items-center cursor-pointer border-t-2 border-b-2 border-secondary hover:border-primary transition-colors duration-300"
+          className="bg-gradient-to-l from-darkpurple from-5% via-muted via-50% to-darkblue shadow-lg p-4 flex justify-center items-center cursor-pointer border-t-2 border-b-2 border-secondary hover:border-primary transition-colors duration-300"
           onClick={toggleDropdown}
         >
           <div className="flex items-center w-full h-24 justify-between max-w-7xl mx-auto">
@@ -79,7 +79,33 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
                         )}
                       </div>
                     </div>
-                    <div className="ml-4 text-primary text-2xl hidden md:block">&rarr;</div>
+                    <div className="ml-4 text-primary text-2xl hidden md:flex items-center relative">
+                      {project.public ? (
+                        <div className="group relative cursor-pointer">
+                          <a
+                            href={project.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-row items-center gap-2"
+                          >
+                            <FaGlobe />
+                            &rarr;
+                          </a>
+                          <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-min p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                            Public Project
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="group relative cursor-pointer">
+                          <span>
+                            <FaLock />
+                          </span>
+                          <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-min p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                            Private Project
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}

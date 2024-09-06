@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const interests = [
   { name: "Machine Learning", description: "Exploring algorithms for intelligent systems.", icon: "fas fa-robot" },
@@ -79,17 +79,23 @@ const ProfileCard = () => {
     const totalYears = years + (months / 12);
     return parseFloat(totalYears.toFixed(1));
   };
-  
+
   const [viewCount, setViewCount] = useState(1000);
   const [completedProjectsCount, setCompletedProjectsCount] = useState(7);
   const [yearsOfExperience, setYearsOfExperience] = useState(calculateYearsOfExperience());
-  
+
+  const initialViewCount = useRef(viewCount);
+  const initialCompletedProjectsCount = useRef(completedProjectsCount);
+  const initialYearsOfExperience = useRef(calculateYearsOfExperience());
+
+  const [hasAnimated, setHasAnimated] = useState(false);
+
   // Function to animate the count up
   const animateCount = (endValue, setValue, isDecimal = false) => {
     let startValue = 0;
     const duration = 2000; // 2 seconds
     const increment = endValue / (duration / 10);
-  
+
     const interval = setInterval(() => {
       startValue += increment;
       if (startValue >= endValue) {
@@ -99,12 +105,15 @@ const ProfileCard = () => {
       setValue(isDecimal ? parseFloat(startValue.toFixed(1)) : Math.floor(startValue));
     }, 10);
   };
-  
+
   useEffect(() => {
-    animateCount(viewCount, setViewCount); // Example end value for views
-    animateCount(completedProjectsCount, setCompletedProjectsCount); // Example end value for completed projects
-    animateCount(calculateYearsOfExperience(), setYearsOfExperience, true); // Calculate years of experience dynamically
-  }, []);
+    if (!hasAnimated) {
+      animateCount(initialViewCount.current, setViewCount); // Example end value for views
+      animateCount(initialCompletedProjectsCount.current, setCompletedProjectsCount); // Example end value for completed projects
+      animateCount(initialYearsOfExperience.current, setYearsOfExperience, true); // Calculate years of experience dynamically
+      setHasAnimated(true);
+    }
+  }, [hasAnimated]);
 
   return (
     <motion.div 
@@ -119,9 +128,9 @@ const ProfileCard = () => {
           alt="Profile"
         />
       </div>
-      <h2 className="text-xl text-center text-white font-bold mb-2">Your Name</h2>
+      <h2 className="text-xl text-center text-white font-bold mb-2">Dominic [name]</h2>
       <p className="text-gray-300 mb-4 text-center">
-        Passionate about building innovative solutions and exploring new technologies.
+        Passionate about technology and innovation. Always seeking new challenges and opportunities to learn and grow.
       </p>
       <div className="grid grid-rows-3 sm:grid-cols-3 sm:grid-rows-1 gap-4 mb-4 justify-center">
         <div className="bg-black rounded-lg shadow-lg p-3 text-center transform transition hover:bg-primary duration-300 group relative">
@@ -191,7 +200,7 @@ const Interests = () => {
 
 const Welcome = () => {
   return (
-    <section id="welcome" className="min-h-screen flex flex-col bg-gradient-to-br from-[#151515] via-[#181424] to-[#011024] relative w-full h-full md:px-6 lg:px-30">
+    <section id="welcome" className="min-h-screen flex flex-col bg-gradient-to-br from-[#151515] via-[#181424] to-[#011024] relative w-full h-full md:px-6 lg:px-24 xl:px-30">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-tr from-primary to-secondary opacity-30 mix-blend-multiply" />
         <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tr from-accent to-background opacity-40 blur-lg" />
@@ -227,7 +236,7 @@ const Welcome = () => {
             </div>
           </div>
           {/* Right Section */}
-          <div className="flex-1 flex items-center justify-start 2xl:justify-center px-6 mt-16 2xl:mr-4">
+          <div className="flex-1 flex items-center md:items-start justify-center px-6 mt-16 2xl:mr-4">
             <ProfileCard />
           </div>
         </div>

@@ -52,42 +52,72 @@ const skillsData = [
 const SkillsSection = () => {
   const [activeCategory, setActiveCategory] = useState(skillsData[0].category);
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 },
+    },
+  };
+
   return (
-    <section id="skills" className="bg-background py-20">
+    <section id="skills" className="bg-background py-20 mx-12">
       <div className="container mx-auto px-4">
         <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="text-center mb-4"
         >
-          <h2 className="text-4xl font-bold text-primary">My Skills</h2>
+          <h2 className="text-4xl font-bold text-primary">Skills</h2>
           <p className="mt-4 text-lg md:text-xl text-text">
-            A comprehensive look at the skills that drive my work and passion.
+            A comprehensive look at the skills and technologies I've acquired over the years.
           </p>
         </motion.div>
 
         {/* Core Skills */}
-        <div className="mb-16">
-          <h3 className="text-3xl font-semibold text-primary mb-8 text-center">Core Skills</h3>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="mb-16"
+        >
           <div className="flex flex-wrap justify-center gap-6">
             {coreSkills.map((skill, index) => (
               <motion.div
                 key={index}
+                variants={itemVariants}
                 className="bg-muted rounded-lg shadow-lg p-6 flex flex-col items-center justify-center w-40 h-40 transition duration-300 hover:bg-darkpurple border border-transparent hover:border-secondary"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <i className={`${skill.icon} text-4xl text-secondary mb-4`} />
                 <h4 className="text-lg font-semibold text-text text-center">{skill.name}</h4>
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Skill Categories */}
-        <div>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
           <div className="flex justify-center space-x-4 mb-8">
             {skillsData.map((category, index) => (
               <button
@@ -106,9 +136,9 @@ const SkillsSection = () => {
 
           <motion.div
             key={activeCategory}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
             className="bg-muted rounded-lg shadow-lg p-6"
           >
             <h3 className="text-2xl font-semibold text-primary mb-6 text-center">{activeCategory}</h3>
@@ -118,10 +148,8 @@ const SkillsSection = () => {
                 .skills.map((skill, index) => (
                   <motion.div
                     key={index}
+                    variants={itemVariants}
                     className="bg-background rounded-lg shadow-md p-4 flex flex-col items-center transition duration-300 hover:bg-darkpurple border border-transparent hover:border-secondary"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1}}
-                    transition={{ duration: 0.5, delay: index * 0.25 }}
                   >
                     <i className={`${skill.icon} text-3xl text-secondary mb-2`} />
                     <h4 className="text-lg font-semibold text-text mb-2">{skill.name}</h4>
@@ -130,7 +158,7 @@ const SkillsSection = () => {
                 ))}
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

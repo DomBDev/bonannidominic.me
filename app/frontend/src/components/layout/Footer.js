@@ -22,7 +22,7 @@ const Footer = () => {
         </a>
         {/* Add more social media icons as needed */}
       </div>
-      <div className="text-sm">
+      <div className="text-sm px-4">
         <p>&copy; 2023 Dominic [name] All rights reserved.</p>
       </div>
       <div className="flex items-center space-x-4">
