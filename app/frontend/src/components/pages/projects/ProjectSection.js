@@ -64,7 +64,7 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
                       <h3 className="text-2xl font-bold text-text">{project.title}</h3>
                       <p className="mt-2 text-lg text-text">{project.description}</p>
                       <div className="mt-2 flex items-center flex-wrap">
-                        {project.skills.slice(0, 3).map((skill, index) => (
+                        {project.skills.slice(0, 5).map((skill, index) => (
                           <span
                             key={index}
                             className="bg-primary text-background rounded-full px-2 py-1 text-sm mr-2 mb-2"
@@ -72,8 +72,8 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
                             {skill}
                           </span>
                         ))}
-                        {project.skills.length > 3 && (
-                          <span className="bg-primary text-background rounded-full px-2 py-1 text-sm">
+                        {project.skills.length > 5 && (
+                          <span className="bg-primary text-background rounded-full px-2 py-1 text-sm mr-2 mb-2">
                             ...
                           </span>
                         )}
