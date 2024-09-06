@@ -10,10 +10,10 @@ The goal of this project is to create a personal portfolio website that effectiv
 
 ### Frontend
 
-- **Home Page:** Basic template implemented.
+- **Home Page:** Almost finished, made responsive, added different sections.
 - **ScrollNav:** Interactive ScrollNav element created.
 - **Navbar:** Initial version created; plans to improve it further.
-- **Projects Page:** Started with a basic layout. Plans to add an interactive modal with multiple popover pages or a separate page for each project when expanded.
+- **Projects Page:** Basic layout implemented. Plans to add either interactive modals with multiple popover pages or separate pages for each project when expanded.
 - **About Page:** Not started yet. The goal is to make it an "arcade" that showcases fun skills and unique features, potentially using 3D or other interesting implementations.
 - **Contact Form:** Simple, functional contact form for inquiries.
 
@@ -32,7 +32,7 @@ The goal of this project is to create a personal portfolio website that effectiv
   - Improve the Navbar for better user experience.
   - Complete the About Page with engaging and interactive elements.
   - Develop an "arcade" style About Page to showcase fun skills and unique features, possibly using 3D or other implementations.
-  - Demos Section for live on page JS demos.
+  - Demos Section for live on-page JS demos.
 
 - **Additional Features:**
   - Implement a blog-like feature to share insights and updates.
@@ -49,7 +49,6 @@ The goal of this project is to create a personal portfolio website that effectiv
 
 - **Responsive Design:** Fully responsive, providing a seamless experience on desktop, tablet, and mobile devices.
 - **Project Showcase:** Detailed section highlighting key projects, with links to GitHub repositories and live demos.
-- **Timeline:** Illustrates key milestones in my journey as a developer.
 - **Contact Form:** Simple, functional contact form for inquiries.
 - **Resume Download:** Option to download my resume in PDF format.
 
