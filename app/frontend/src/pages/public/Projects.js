@@ -1,5 +1,7 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
+
 import BackgroundAnimation from '../../components/pages/projects/BackgroundAnimation';
 import ProjectSection from '../../components/pages/projects/ProjectSection';
 
@@ -145,6 +147,18 @@ const ProjectsHeader = () => {
 };
 
 const Projects = () => {
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('/api/projects');
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
   return (
     <div className="pt-32 bg-gradient-to-br from-darkblue via-muted to-darkpurple min-h-screen relative overflow-hidden">
       <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap" rel="stylesheet"></link>

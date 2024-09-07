@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGlobe, FaLock } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
   const [isOpen, setIsOpen] = useState();
@@ -89,7 +90,7 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
                             className="flex flex-row items-center gap-2"
                           >
                             <FaGlobe />
-                            &rarr;
+                            <Link to={`/projects/${project._id}`}>&rarr;</Link>
                           </a>
                           <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-min p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                             Public Project
