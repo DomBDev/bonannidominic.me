@@ -1,61 +1,184 @@
 # bonannidominic.me
 
-Welcome to the repository for my portfolio website! This project showcases my skills and experience as a Full Stack Web Developer, using modern web technologies like React.js, Express.js, Node.js, and Tailwind CSS.
+Welcome to the repository for my portfolio website! This project showcases my skills and experience as a Full Stack Web Developer, utilizing modern web technologies and best practices in web development.
 
 ## Project Overview
 
-The goal of this project is to create a personal portfolio website that effectively highlights my journey, skills, and accomplishments in web development, programming, and related fields. This website serves as a central hub for potential employers, collaborators, and others interested in my work.
+This personal portfolio website effectively highlights my journey, skills, and accomplishments in web development, programming, and related fields. It serves as a comprehensive showcase of my abilities and a central hub for potential employers, collaborators, and others interested in my work.
 
-## Current Status
+## Table of Contents
 
-### Frontend
-
-- **Home Page:** Almost finished, made responsive, added different sections.
-- **ScrollNav:** Interactive ScrollNav element created.
-- **Navbar:** Initial version created; plans to improve it further.
-- **Projects Page:** Basic layout implemented. Plans to add either interactive modals with multiple popover pages or separate pages for each project when expanded.
-- **About Page:** Not started yet. The goal is to make it an "arcade" that showcases fun skills and unique features, potentially using 3D or other interesting implementations.
-- **Contact Form:** Simple, functional contact form for inquiries.
-
-### Backend
-
-- **Planned:** Backend implementation will start once the frontend is completed. It will handle server-side logic, API endpoints, and integration with external services.
-
-## Future Plans
-
-- **Backend Implementation:**
-  - Handle contact form submissions.
-  - Create editable projects section.
-  - Develop an editable page for sharing insights and updates (not exactly a blog).
-
-- **Frontend Enhancements:**
-  - Improve the Navbar for better user experience.
-  - Complete the About Page with engaging and interactive elements.
-  - Develop an "arcade" style About Page to showcase fun skills and unique features, possibly using 3D or other implementations.
-  - Demos Section for live on-page JS demos.
-
-- **Additional Features:**
-  - Implement a blog-like feature to share insights and updates.
-  - Regularly update the site with new projects and content.
-
-## Tech Stack
-
-- **Frontend:** React.js, Tailwind CSS
-- **Backend:** Node.js, Express.js, MongoDB (planned)
-- **Deployment:** DigitalOcean, Nginx
-- **Other Tools:** Git, GitHub, VS Code, Debian
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Key Implementations](#key-implementations)
+- [Documentation](#documentation)
+- [Project Structure](#project-structure)
+- [Key Components](#key-components)
 
 ## Features
 
-- **Responsive Design:** Fully responsive, providing a seamless experience on desktop, tablet, and mobile devices.
-- **Project Showcase:** Detailed section highlighting key projects, with links to GitHub repositories and live demos.
-- **Contact Form:** Simple, functional contact form for inquiries.
-- **Resume Download:** Option to download my resume in PDF format.
+### Frontend
 
-## My Path So Far
+- **Responsive Design:** Fully responsive layout providing a seamless experience across desktop, tablet, and mobile devices.
+- **Interactive UI:** Smooth animations and transitions using Framer Motion for an engaging user experience.
+- **Dynamic Content:** All content is dynamically loaded from the backend, ensuring up-to-date information.
+- **Project Showcase:** Detailed section highlighting key projects, including skills used, timelines, learnings, and links to GitHub repositories and live demos.
+- **Interactive ScrollNav:** Custom-built navigation for smooth scrolling through different sections of the site.
+- **Contact Form:** Functional contact form for inquiries, integrated with backend for data persistence.
+- **Dark/Light Mode Toggle:** Users can switch between dark and light themes for comfortable viewing.
 
-My journey into technology began with a curiosity for coding, which has evolved into a passion for web development, design, and AI. From creating my first text-based game to developing dynamic web applications, I've always sought to learn and grow. This portfolio website is the culmination of years of hard work, learning, and dedication.
+### Backend
+
+- **RESTful API:** Comprehensive set of endpoints for managing projects, skills, about information, and contact messages.
+- **Database Integration:** MongoDB integration for efficient data storage and retrieval.
+- **File Uploads:** Handling of image and media uploads for projects and other content.
+- **Authentication:** Secure user authentication for accessing the admin panel.
+- **Admin Panel/CMS:** Full-featured Content Management System for easy updates to all site content.
+- **Message Inbox:** System for managing and responding to contact form submissions.
+- **View Tracking:** Tracks and displays view counts for the portfolio and individual projects.
+
+## Tech Stack
+
+- **Frontend:** React.js, Tailwind CSS, Framer Motion
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB
+- **State Management:** React Context API
+- **HTTP Client:** Axios
+- **Authentication:** JSON Web Tokens (JWT)
+- **Deployment:** DigitalOcean, Nginx, CloudFlare
+- **Version Control:** Git, GitHub
+- **Development Environment:** VS Code
+
+## Key Implementations
+
+1. **Dynamic Project Management:**
+   - CRUD operations for projects via the admin panel.
+   - Real-time updates of project information on the frontend.
+
+2. **Skills Visualization:**
+   - Interactive chart displaying skills and proficiency levels.
+   - Editable through the admin panel.
+
+3. **Admin Dashboard:**
+   - Comprehensive overview of site statistics.
+   - Management interfaces for projects, skills, and messages.
+
+4. **Inbox System:**
+   - Real-time notifications for new messages.
+   - Interface for reading, marking as read/unread, and deleting messages.
+
+5. **View Tracking:**
+   - Tracks overall portfolio views and individual project views.
+   - Displays statistics in the admin dashboard.
+
+6. **Animations and Transitions:**
+   - Utilized Framer Motion for smooth, engaging UI interactions.
+   - Custom animations for page transitions and element reveals.
+
+## Documentation
+
+### Project Structure
+
+The project follows a typical MERN stack structure:
+
+```
+bonannidominic.me/
+├── app/
+│   ├── frontend/
+│   │   ├── public/
+│   │   └── src/
+│   │       ├── assets/
+│   │       ├── components/
+│   │       ├── pages/
+│   │       ├── hooks/
+│   │       └── styles/
+│   └── backend/
+│       ├── models/
+│       ├── routes/
+│       └── middleware/
+```
+
+### Key Components
+
+1. **Project Management (ProjectManagement.js)**
+   - Location: `app/frontend/src/components/pages/dashboard/ProjectManagement.js`
+   - Purpose: Manages CRUD operations for projects in the admin panel.
+   - Key Features: Dynamic sorting, filtering, and real-time updates.
+
+2. **Project Detail Page (ProjectDetail.js)**
+   - Location: `app/frontend/src/pages/public/ProjectDetail.js`
+   - Purpose: Displays detailed information about a specific project.
+   - Key Features: Interactive tabs, media gallery, and animated UI elements.
+
+3. **Portfolio Section (PortfolioSection.js)**
+   - Location: `app/frontend/src/components/pages/home/PortfolioSection.js`
+   - Purpose: Showcases featured projects on the home page.
+   - Key Features: Responsive grid layout, project cards with hover effects.
+
+4. **Welcome Component (Welcome.js)**
+   - Location: `app/frontend/src/components/pages/home/Welcome.js`
+   - Purpose: Introduces the user to the portfolio and displays key statistics.
+   - Key Features: Animated counters, skill marquee, and call-to-action button.
+
+### API Endpoints
+
+- `GET /api/projects`: Retrieve all projects
+- `POST /api/projects`: Create a new project
+- `PUT /api/projects/:id`: Update a project
+- `DELETE /api/projects/:id`: Delete a project
+- `GET /api/views/total`: Get total view count
+- `GET /api/views/project/:projectId`: Get view count for a specific project
+- `GET /api/views`: Get all views
+- `GET /api/skills`: Get all skills
+- `POST /api/skills`: Create a new skill
+- `PUT /api/skills/:id`: Update a skill
+- `DELETE /api/skills/:id`: Delete a skill
+- `GET /api/about`: Get about information
+- `PUT /api/about`: Update about information
+- `POST /api/contact`: Submit a contact form
+- `GET /api/contact`: Get all contact messages
+- `DELETE /api/contact/:id`: Delete a contact message
+
+### Styling
+
+The project uses Tailwind CSS for styling, with custom configurations in `tailwind.config.js`. Key custom classes are defined in `src/styles/index.css`.
+
+## Deployment
+
+The application is deployed on DigitalOcean using Nginx as a reverse proxy. The deployment process involves:
+
+1. Building the React frontend
+2. Setting up the Node.js backend
+3. Configuring Nginx to serve the static frontend and proxy API requests to the backend
+4. Setting up SSL certificates with CloudFlare
+
+## Conclusion
+
+This portfolio website represents not just a showcase of my technical skills, but also my approach to problem-solving, user experience design, and continuous learning. It's a living project that will continue to evolve as I grow as a developer.
+
+Key features include:
+- Fully responsive design with interactive UI elements
+- Dynamic content management through a custom CMS
+- Comprehensive project showcase with detailed information
+- Secure admin panel for content updates and message management
+- View tracking for portfolio and individual projects
+- Contact form with backend integration
+- Dark/Light mode toggle for user preference
+
+The tech stack demonstrates proficiency in modern web development:
+- Frontend: React.js, Tailwind CSS, Framer Motion
+- Backend: Node.js, Express.js, MongoDB
+- Additional: Axios, JWT, DigitalOcean, Nginx
+
+## Future Plans
+
+1. **Blog Feature:** Implement a blog section for sharing insights and updates.
+2. **Enhanced Analytics:** Implement more detailed analytics for visitor interactions.
+3. **Interactive Demos:** Add a section for live, interactive JavaScript demos.
+4. **AI Integration:** Explore integrating AI-powered features, such as a chatbot for answering visitor queries.
+5. **Collaborative Project Space:** Create a platform for visitors to propose and collaborate on open-source projects.
 
 ---
 
-Thank you for visiting my portfolio site! Stay tuned for updates as I continue to build and refine this project.
+Thank you for exploring my portfolio project! Feel free to reach out if you have any questions or would like to discuss potential collaborations.

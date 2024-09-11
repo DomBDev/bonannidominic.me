@@ -15,14 +15,21 @@ const mediaSchema = new mongoose.Schema({
 const projectSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  details: { type: String, required: true },
-  timeline: { type: String, required: true },
-  skills: { type: [String], required: true },
-  learned: { type: String, required: true },
-  status: { type: String, enum: ['completed', 'wip', 'planned'], required: true },
-  image: { type: String, required: true },
-  public: { type: Boolean, required: true },
-  media: [mediaSchema]
+  details: { type: String },
+  timeline: { type: String },
+  skills: { type: [String] },
+  learned: { type: String },
+  status: { 
+    type: String, 
+    enum: ['completed', 'wip', 'planned'],
+    default: 'planned'
+  },
+  image: { type: String },
+  public: { type: Boolean, default: false },
+  media: [mediaSchema],
+  github: { type: String },
+  live: { type: String },
+  featured: { type: Boolean, default: false }
 });
 
 const Project = mongoose.model('Project', projectSchema);

@@ -1,16 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGlobe, FaLock } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
-  const [isOpen, setIsOpen] = useState();
-
-  useEffect(() => {
-    if (defaultOpen) {
-      setIsOpen(true);
-    }
-  }, [defaultOpen]);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const location = useLocation();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -46,13 +41,13 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
               transition={{ duration: 0.5, ease: 'easeInOut' }}
               style={{ overflow: 'hidden' }}
             >
-              {projects.map((project, index) => (
+              {projects.map((project) => (
                 <motion.div
-                  key={project.id}
+                  key={project._id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.5, delay: index * 0.1, ease: 'easeInOut' }}
+                  transition={{ duration: 0.5, delay: 0.1, ease: 'easeInOut' }}
                   className="relative bg-gradient-to-l from-secondary to-muted shadow-lg p-4 flex flex-col md:flex-row justify-center items-center transition-colors duration-300 group border-t-2 border-black"
                 >
                   <div className="flex items-center w-full pl-4 border-l-2 border-primary group max-w-7xl mx-auto">
@@ -81,31 +76,19 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
                       </div>
                     </div>
                     <div className="ml-4 text-primary text-2xl hidden md:flex items-center relative">
-                      {project.public ? (
-                        <div className="group relative cursor-pointer">
-                          <a
-                            href={project.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex flex-row items-center gap-2"
-                          >
-                            <FaGlobe />
-                            <Link to={`/projects/${project._id}`}>&rarr;</Link>
-                          </a>
-                          <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-min p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                            Public Project
-                          </div>
+                      <div className="group relative cursor-pointer">
+                        <Link
+                          to={`/projects/${project._id}`}
+                          state={{ from: location.pathname }}
+                          className="flex flex-row items-center gap-2"
+                        >
+                          {project.public ? <FaGlobe /> : <FaLock />}
+                          <span>&rarr;</span>
+                        </Link>
+                        <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-min p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                          {project.public ? "Public Project" : "Private Project"}
                         </div>
-                      ) : (
-                        <div className="group relative cursor-pointer">
-                          <span>
-                            <FaLock />
-                          </span>
-                          <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-min p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                            Private Project
-                          </div>
-                        </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </motion.div>

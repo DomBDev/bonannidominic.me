@@ -11,7 +11,7 @@ const ScrollNav = ({ sections, currentSection }) => {
           <Link
             key={section}
             to={section}
-            smooth={true}
+            smooth="true"
             offset={-70}
             duration={500}
             className={`relative flex items-center justify-start cursor-pointer transition-transform ${

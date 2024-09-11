@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const interests = [
   { name: "Machine Learning", description: "Exploring algorithms for intelligent systems.", icon: "fas fa-robot" },
@@ -9,35 +11,7 @@ const interests = [
   { name: "Engineering", description: "Applying scientific principles to solve real-world problems.", icon: "fas fa-tools" },
 ];
 
-const skills = [
-  { name: 'Python', iconClass: 'fab fa-python text-yellow-500' },
-  { name: 'JavaScript', iconClass: 'fab fa-js text-yellow-500' },
-  { name: 'HTML', iconClass: 'fab fa-html5 text-orange-500' },
-  { name: 'CSS', iconClass: 'fab fa-css3-alt text-blue-500' },
-  { name: 'SQL', iconClass: 'fas fa-database text-green-500' },
-  { name: 'MongoDB', iconClass: 'fas fa-database text-green-500' },
-  { name: 'React', iconClass: 'fab fa-react text-blue-500' },
-  { name: 'Node.js', iconClass: 'fab fa-node-js text-green-500' },
-  { name: 'Express', iconClass: 'fab fa-node-js text-green-500' },
-  { name: 'Flask', iconClass: 'fas fa-flask text-gray-500' },
-  { name: 'Django', iconClass: 'fab fa-django text-blue-500' },
-  { name: 'Tailwind CSS', iconClass: 'fab fa-css3-alt text-teal-500' },
-  { name: 'Bootstrap', iconClass: 'fab fa-bootstrap text-purple-500' },
-  { name: 'Git', iconClass: 'fab fa-git text-orange-500' },
-  { name: 'GitHub', iconClass: 'fab fa-github text-black' },
-  { name: 'Digital Ocean', iconClass: 'fas fa-cloud text-blue-500' },
-  { name: 'Heroku', iconClass: 'fas fa-cloud text-purple-500' },
-  { name: 'VS Code', iconClass: 'fas fa-code text-blue-500' },
-  { name: 'Ubuntu', iconClass: 'fab fa-ubuntu text-orange-500' },
-  { name: 'Debian', iconClass: 'fab fa-debian text-red-500' },
-  { name: 'Arduino', iconClass: 'fab fa-arduino text-blue-500' },
-  { name: 'Raspberry Pi', iconClass: 'fab fa-raspberry-pi text-red-500' },
-  { name: 'Fusion 360', iconClass: 'fas fa-cube text-blue-500' },
-  { name: 'ESP32', iconClass: 'fab fa-usb text-blue-500' },
-];
-
-// TODO: Make looping infinite.
-const SkillsMarquee = () => (
+const SkillsMarquee = ({ skills }) => (
   <div className="skills-marquee-container flex flex-row overflow-hidden whitespace-nowrap py-2 max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl rounded-lg border-2 border-primary">
     <div className="marquee1 skills-marquee flex animate-marquee">
       {skills.map((skill, index) => (
@@ -48,7 +22,7 @@ const SkillsMarquee = () => (
           initial={{ opacity: 0, x: -30 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
         >
-          <i className={`${skill.iconClass} text-2xl mr-2`}></i>
+          <i className={`${skill.icon} text-2xl mr-2`} style={{ color: skill.color }}></i>
           {skill.name}
         </motion.div>
       ))}
@@ -62,7 +36,7 @@ const SkillsMarquee = () => (
           initial={{ opacity: 0, x: -30 }}
           transition={{ duration: 0.5, delay: index * 0.1 + (0.1*skills.length) }}
         >
-          <i className={`${skill.iconClass} text-2xl mr-2`}></i>
+          <i className={`${skill.icon} text-2xl mr-2`} style={{ color: skill.color }}></i>
           {skill.name}
         </motion.div>
       ))}
@@ -70,7 +44,7 @@ const SkillsMarquee = () => (
   </div>
 );
 
-const ProfileCard = () => {
+const ProfileCard = ({ totalViews, totalProjects }) => {
   const calculateYearsOfExperience = () => {
     const startDate = new Date(2020, 2); // March 2020 (month is 0-indexed)
     const currentDate = new Date();
@@ -80,12 +54,12 @@ const ProfileCard = () => {
     return parseFloat(totalYears.toFixed(1));
   };
 
-  const [viewCount, setViewCount] = useState(1000);
-  const [completedProjectsCount, setCompletedProjectsCount] = useState(7);
+  const [viewCount, setViewCount] = useState(parseInt(totalViews) || 0);
+  const [currentProjectsCount, setCurrentProjectsCount] = useState(totalProjects);
   const [yearsOfExperience, setYearsOfExperience] = useState(calculateYearsOfExperience());
 
-  const initialViewCount = useRef(viewCount);
-  const initialCompletedProjectsCount = useRef(completedProjectsCount);
+  const initialViewCount = useRef(totalViews);
+  const initialCurrentProjectsCount = useRef(totalProjects);
   const initialYearsOfExperience = useRef(calculateYearsOfExperience());
 
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -108,9 +82,9 @@ const ProfileCard = () => {
 
   useEffect(() => {
     if (!hasAnimated) {
-      animateCount(initialViewCount.current, setViewCount); // Example end value for views
-      animateCount(initialCompletedProjectsCount.current, setCompletedProjectsCount); // Example end value for completed projects
-      animateCount(initialYearsOfExperience.current, setYearsOfExperience, true); // Calculate years of experience dynamically
+      animateCount(initialViewCount.current, setViewCount);
+      animateCount(initialCurrentProjectsCount.current, setCurrentProjectsCount);
+      animateCount(initialYearsOfExperience.current, setYearsOfExperience, true);
       setHasAnimated(true);
     }
   }, [hasAnimated]);
@@ -141,10 +115,10 @@ const ProfileCard = () => {
           </div>
         </div>
         <div className="bg-black rounded-lg shadow-lg p-3 text-center transform transition hover:bg-primary duration-300 group relative">
-          <h3 className="text-sm sm:text-md md:text-lg text-white font-semibold">Completed Projects</h3>
-          <p className="text-xl md:text-2xl text-yellow-400 group-hover:text-black transition duration-300 font-bold">{completedProjectsCount}</p>
+          <h3 className="text-sm sm:text-md md:text-lg text-white font-semibold">Current Projects</h3>
+          <p className="text-xl md:text-2xl text-yellow-400 group-hover:text-black transition duration-300 font-bold">{currentProjectsCount}</p>
           <div className="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            Indicates the number of personal projects successfully completed, reflecting hands-on experience and dedication.
+            Indicates the total number of projects in my portfolio, reflecting my range of work and experience.
           </div>
         </div>
         <div className="bg-black rounded-lg shadow-lg p-3 text-center transform transition hover:bg-primary duration-300 group relative">
@@ -199,6 +173,37 @@ const Interests = () => {
 };
 
 const Welcome = () => {
+  const [projects, setProjects] = useState([]);
+  const [totalViews, setTotalViews] = useState(0);
+  const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [projectsResponse, viewsResponse, skillsResponse] = await Promise.all([
+          axios.get('http://localhost:5000/api/projects'),
+          axios.get('http://localhost:5000/api/views/total'),
+          axios.get('http://localhost:5000/api/skills')
+        ]);
+        setProjects(projectsResponse.data);
+        setTotalViews(viewsResponse.data.totalViews);
+        setSkills(skillsResponse.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load data. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <section id="welcome" className="min-h-screen flex flex-col bg-gradient-to-br from-[#151515] via-[#181424] to-[#011024] relative w-full h-full md:px-6 lg:px-24 xl:px-30">Loading...</section>
+  if (error) return <section id="welcome" className="min-h-screen flex flex-col bg-gradient-to-br from-[#151515] via-[#181424] to-[#011024] relative w-full h-full md:px-6 lg:px-24 xl:px-30">Error</section>
+
   return (
     <section id="welcome" className="min-h-screen flex flex-col bg-gradient-to-br from-[#151515] via-[#181424] to-[#011024] relative w-full h-full md:px-6 lg:px-24 xl:px-30">
       <div className="absolute inset-0 overflow-hidden">
@@ -225,19 +230,21 @@ const Welcome = () => {
               </p>
             </motion.div>
             <div className="mt-8 flex flex-col ml-4">
-              <SkillsMarquee />
+              <SkillsMarquee skills={skills} />
 
-              <a 
-                className="bg-gradient-to-r from-primary to-highlight mt-2 px-4 py-2 w-fit rounded-sm text-background text-lg md:text-xl font-bold cursor-pointer" 
-                onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}
+              <Link 
+                to="contact" 
+                smooth="true"
+                duration={500} 
+                className="bg-gradient-to-r from-primary to-highlight mt-2 px-4 py-2 w-fit rounded-sm text-background text-lg md:text-xl font-bold cursor-pointer"
               >
                 Want to work together?
-              </a>
+              </Link>
             </div>
           </div>
           {/* Right Section */}
-          <div className="flex-1 flex items-center md:items-start justify-center px-6 mt-16 2xl:mr-4">
-            <ProfileCard />
+          <div className="flex-1 flex items-center md:items-start justify-center px-6 mt-24 2xl:mr-4">
+            <ProfileCard totalViews={totalViews} totalProjects={projects.length} />
           </div>
         </div>
         {/* Lower Div */}

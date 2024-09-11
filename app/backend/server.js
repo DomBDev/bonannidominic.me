@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 const app = express();
 app.use(cors());
@@ -17,8 +18,21 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 // Routes
 const projectRoutes = require('./routes/projects');
 const userRoutes = require('./routes/users');
+const skillRoutes = require('./routes/skills');
+const uploadRoutes = require('./routes/upload');
+const viewRoutes = require('./routes/views');
+const timelineRoutes = require('./routes/timeline');
+const contactRoutes = require('./routes/contacts');
 app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/skills', skillRoutes);
+app.use('/api/timeline', timelineRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/views', viewRoutes);
+app.use('/api/contacts', contactRoutes);
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve frontend
 if (process.env.NODE_ENV === 'production') {

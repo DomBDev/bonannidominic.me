@@ -22,6 +22,11 @@ const Navbar = () => {
     }
   };
 
+  const isLoggedIn = () => {
+    const token = localStorage.getItem('token');
+    return !!token;
+  };
+
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -63,6 +68,15 @@ const Navbar = () => {
           >
             About {isActive('/about') && <span className="ml-2 w-2 h-2 bg-primary rounded-full"></span>}
           </motion.a>
+          {isLoggedIn() && (
+            <motion.a
+              whileHover={{ color: '#6dabca' }}
+              href="/admin/dashboard"
+              className="text-text transition duration-100 flex items-center"
+            >
+              Dashboard
+            </motion.a>
+          )}
           <motion.div
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -118,6 +132,15 @@ const Navbar = () => {
           >
             About {isActive('/about') && <span className="ml-2 w-2 h-2 bg-primary rounded-full"></span>}
           </motion.a>
+          {isLoggedIn() && (
+            <motion.a
+              whileHover={{ color: '#6dabca' }}
+              href="/admin/dashboard"
+              className="block text-center text-text transition duration-300 flex justify-center items-center"
+            >
+              Dashboard
+            </motion.a>
+          )}
           <motion.div
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
