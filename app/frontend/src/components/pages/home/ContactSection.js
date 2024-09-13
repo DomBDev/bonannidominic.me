@@ -138,7 +138,7 @@ const ContactSection = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full p-2 rounded-lg bg-secondary text-text font-bold hover:bg-primary transition duration-300"
+                        className="w-full p-2 rounded-lg bg-secondary text-text font-bold hover:bg-primary transition duration-300 z-10"
                     >
                         Send Message
                     </button>
@@ -146,9 +146,9 @@ const ContactSection = () => {
                 <AnimatePresence>
                     {notification.message && (
                         <motion.div
-                            initial={{ opacity: 0, y: 50 }}
+                            initial={{ opacity: 0, y: -50 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 50 }}
+                            exit={{ opacity: 0, y: -50 }}
                             className={`mt-4 p-2 rounded-lg ${
                                 notification.type === 'success' ? 'bg-accent' :
                                 notification.type === 'error' ? 'bg-red-500' : 'bg-blue-500'

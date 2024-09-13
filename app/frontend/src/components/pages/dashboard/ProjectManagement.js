@@ -31,15 +31,12 @@ const ProjectManagement = () => {
       const projectsResponse = await axios.get('http://localhost:5000/api/projects', {
         headers: { 'x-auth-token': token }
       });
-      console.log('Projects fetched:', projectsResponse.data); // Add this line
       const projectsWithViews = await Promise.all(projectsResponse.data.map(async (project) => {
         const viewsResponse = await axios.get(`http://localhost:5000/api/views/project/${project._id}`, {
           headers: { 'x-auth-token': token }
         });
-        console.log(`Views for project ${project._id}:`, viewsResponse.data); // Add this line
         return { ...project, views: viewsResponse.data.projectViews };
       }));
-      console.log('Projects with views:', projectsWithViews); // Add this line
       setProjects(projectsWithViews);
       setLoading(false);
     } catch (err) {

@@ -58,7 +58,7 @@ const Dashboard = () => {
       setToken(storedToken);
       axios.defaults.headers.common['x-auth-token'] = storedToken;
     } else {
-      navigate('/admin/login');
+      navigate('/login');
     }
   }, [navigate]);
 
@@ -71,7 +71,7 @@ const Dashboard = () => {
     setError(null);
 
     if (!token) {
-      navigate('/admin/login');
+      navigate('/login');
       return;
     }
 
@@ -125,7 +125,7 @@ const Dashboard = () => {
       console.error('Error fetching dashboard data:', err);
       if (err.response && err.response.status === 401) {
         localStorage.removeItem('token');
-        navigate('/admin/login');
+        navigate('/login');
       } else {
         setError('Some dashboard data could not be loaded. Please try refreshing the page.');
       }

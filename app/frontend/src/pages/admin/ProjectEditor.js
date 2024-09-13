@@ -18,7 +18,7 @@ const ProjectEditor = () => {
       setToken(storedToken);
       axios.defaults.headers.common['x-auth-token'] = storedToken;
     } else {
-      navigate('/admin/login');
+      navigate('/login');
     }
   }, [navigate]);
 
@@ -38,7 +38,7 @@ const ProjectEditor = () => {
     } catch (error) {
       console.error('Error fetching project:', error);
       if (error.response && error.response.status === 401) {
-        navigate('/admin/login');
+        navigate('/login');
       } else {
         setError('Failed to load project. Please try again later.');
         setLoading(false);
@@ -180,7 +180,7 @@ const ProjectEditor = () => {
     } catch (error) {
       console.error('Error updating project:', error);
       if (error.response && error.response.status === 401) {
-        navigate('/admin/login');
+        navigate('/login');
       } else {
         setError('Failed to update project. Please try again.');
       }
@@ -198,7 +198,7 @@ const ProjectEditor = () => {
       } catch (error) {
         console.error('Error deleting project:', error);
         if (error.response && error.response.status === 401) {
-          navigate('/admin/login');
+          navigate('/login');
         } else {
           setError('Failed to delete project. Please try again.');
         }

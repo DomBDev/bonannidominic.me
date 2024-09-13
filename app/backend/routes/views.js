@@ -5,8 +5,7 @@ const View = require('../models/Views');
 // Record a view
 router.post('/', async (req, res) => {
   const { projectId, sessionId } = req.body;
-  
-  console.log('Recording view:', { projectId, sessionId }); // Add this line
+
 
   if (!sessionId) {
     return res.status(400).json({ error: 'sessionId is required' });
@@ -18,7 +17,6 @@ router.post('/', async (req, res) => {
       sessionId 
     });
     const savedView = await newView.save();
-    console.log('View saved:', savedView); // Add this line
     res.status(201).json(savedView);
   } catch (error) {
     console.error('Error recording view:', error);

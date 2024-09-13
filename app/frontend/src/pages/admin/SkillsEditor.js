@@ -120,9 +120,7 @@ const SkillsEditor = () => {
 
   const handleSaveSkills = async () => {
     try {
-      console.log('Sending skills data:', skills);
       const response = await axios.post('http://localhost:5000/api/skills', skills);
-      console.log('Server response:', response.data);
       alert('Skills saved successfully!');
       setHasChanges(false);
       setSkills(response.data); // Update the skills with the returned data

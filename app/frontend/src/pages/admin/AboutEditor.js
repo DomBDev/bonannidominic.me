@@ -1,383 +1,267 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import axios from 'axios';
-import IconSelector from '../../components/common/IconSelector';
 import { useNavigate } from 'react-router-dom';
 import AdminNav from './AdminNav';
+import TimelineElementEditor from '../../components/pages/about/TimelineElement';
+import { setAuthToken } from '../../hooks/tokenRefresh';
 
-const AboutEditor = () => {
-  const [timelineEvents, setTimelineEvents] = useState([]);
-  const [currentSection, setCurrentSection] = useState(0);
-  const [direction, setDirection] = useState(0);
-  const [isEditing, setIsEditing] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchTimelineEvents();
-  }, []);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-      axios.defaults.headers.common['x-auth-token'] = storedToken;
-    } else {
-      navigate('/admin/login');
-    }
-  }, [navigate]);
-
-  const fetchTimelineEvents = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/timeline');
-      setTimelineEvents(response.data.sort((a, b) => a.year - b.year));
-    } catch (error) {
-      console.error('Error fetching timeline events:', error);
-    }
-  };
-
-  const navigateSection = useCallback((newSection) => {
-    if (newSection >= 0 && newSection < timelineEvents.length) {
-      setDirection(newSection > currentSection ? 1 : -1);
-      setCurrentSection(newSection);
-    }
-  }, [currentSection, timelineEvents.length]);
-
-  const handleEventUpdate = async (updatedEvent) => {
-    try {
-      const response = await axios.put(`http://localhost:5000/api/timeline/${updatedEvent._id}`, updatedEvent, {
-        headers: { 'x-auth-token': token }
-      });
-      if (response.status === 200) {
-        fetchTimelineEvents();
-        setIsEditing(false);
-        console.log('Event updated successfully');
-      } else {
-        throw new Error('Failed to update event');
-      }
-    } catch (error) {
-      console.error('Error updating timeline event:', error);
-      if (error.response && error.response.status === 401) {
-        navigate('/admin/login');
-      }
-    }
-  };
-
-  const handleEventCreate = async (newEvent) => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/timeline', newEvent, {
-        headers: { 'x-auth-token': token }
-      });
-      if (response.status === 201) {
-        fetchTimelineEvents();
-        setIsEditing(false);
-        console.log('Event created successfully');
-      } else {
-        throw new Error('Failed to create event');
-      }
-    } catch (error) {
-      console.error('Error creating timeline event:', error);
-      if (error.response && error.response.status === 401) {
-        navigate('/admin/login');
-      }
-    }
-  };
-
-  const handleEventDelete = async (eventId) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/timeline/${eventId}`, {
-        headers: { 'x-auth-token': token }
-      });
-      fetchTimelineEvents();
-      setCurrentSection(Math.max(0, currentSection - 1));
-    } catch (error) {
-      console.error('Error deleting timeline event:', error);
-      if (error.response && error.response.status === 401) {
-        navigate('/admin/login');
-      }
-    }
-  };
-
-  const calculateAge = (year) => {
-    const birthDate = new Date('2006-09-02');
-    const timelineDate = new Date(year, 0, 1);
-    const age = timelineDate.getFullYear() - birthDate.getFullYear();
-    return `${age - 1}-${age}`;
+const SortableItem = ({ element, onUpdate, onDelete, isExpanded }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: element._id });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
   };
 
   return (
+    <div ref={setNodeRef} style={style} className="flex-shrink-0 w-96">
+      <div className="bg-background p-4 rounded-lg shadow-lg h-full flex flex-col">
+        <div className="cursor-move mb-2 text-primary hover:text-accent transition-colors duration-200 w-min" {...attributes} {...listeners}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </div>
+        <div className="mx-4 inline-block">
+          <span className="px-2 py-1 text-xs font-medium bg-accent/20 text-accent rounded-full">
+            {element.type.charAt(0).toUpperCase() + element.type.slice(1)}
+          </span>
+        </div>
+        <TimelineElementEditor
+          element={element}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          isExpanded={isExpanded}
+        />
+      </div>
+    </div>
+  );
+};
+
+const AboutEditor = () => {
+  const [timelineElements, setTimelineElements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const scrollContainerRef = useRef(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const animationRef = useRef(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setAuthToken(token);
+    }
+    fetchTimelineElements();
+  }, []);
+
+  const fetchTimelineElements = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/timeline');
+      setTimelineElements(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching timeline elements:', error);
+      setError('Failed to fetch timeline elements');
+      setLoading(false);
+      if (error.response && error.response.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      const oldIndex = timelineElements.findIndex((item) => item._id === active.id);
+      const newIndex = timelineElements.findIndex((item) => item._id === over.id);
+
+      const newItems = Array.from(timelineElements);
+      const [reorderedItem] = newItems.splice(oldIndex, 1);
+      newItems.splice(newIndex, 0, reorderedItem);
+
+      setTimelineElements(newItems);
+
+      const reorderData = { 
+        elements: newItems.map((item, index) => ({ _id: item._id, order: index })) 
+      };
+
+      try {
+        const response = await axios.put('http://localhost:5000/api/timeline/reorder', reorderData);
+      } catch (error) {
+        console.error('Error reordering timeline elements:', error);
+        console.error('Error response:', error.response?.data);
+        if (error.response && error.response.status === 401) {
+          navigate('/login');
+        }
+      }
+    }
+  };
+
+  const handleElementCreate = async () => {
+    try {
+      const newElement = {
+        type: 'event', // Default type
+        year: new Date().getFullYear(),
+        title: 'New Event',
+        icon: 'fa-star',
+        shortDescription: 'Short description',
+        longDescription: 'Long description',
+      };
+      await axios.post('http://localhost:5000/api/timeline', newElement);
+      fetchTimelineElements();
+    } catch (error) {
+      console.error('Error creating timeline element:', error);
+      if (error.response && error.response.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  const handleElementUpdate = async (updatedElement) => {
+    try {
+      await axios.put(`http://localhost:5000/api/timeline/${updatedElement._id}`, updatedElement);
+      fetchTimelineElements(); // Refresh the timeline elements after update
+    } catch (error) {
+      console.error('Error updating timeline element:', error);
+      if (error.response && error.response.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  const handleElementDelete = async (elementId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/timeline/${elementId}`);
+      fetchTimelineElements();
+    } catch (error) {
+      console.error('Error deleting timeline element:', error);
+      if (error.response && error.response.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    let isScrolling = false;
+    let startX;
+    let scrollLeft;
+
+    const handleMouseDown = (e) => {
+      isScrolling = true;
+      startX = e.pageX - scrollContainer.offsetLeft;
+      scrollLeft = scrollContainer.scrollLeft;
+    };
+
+    const handleMouseLeave = () => {
+      isScrolling = false;
+    };
+
+    const handleMouseUp = () => {
+      isScrolling = false;
+    };
+
+    const handleMouseMove = (e) => {
+      if (!isScrolling) return;
+      e.preventDefault();
+      const x = e.pageX - scrollContainer.offsetLeft;
+      const walk = (x - startX) * 2;
+      scrollContainer.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+      scrollContainer.scrollLeft += e.deltaY;
+    };
+
+    scrollContainer.addEventListener('mousedown', handleMouseDown);
+    scrollContainer.addEventListener('mouseleave', handleMouseLeave);
+    scrollContainer.addEventListener('mouseup', handleMouseUp);
+    scrollContainer.addEventListener('mousemove', handleMouseMove);
+    scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      scrollContainer.removeEventListener('mousedown', handleMouseDown);
+      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
+      scrollContainer.removeEventListener('mouseup', handleMouseUp);
+      scrollContainer.removeEventListener('mousemove', handleMouseMove);
+      scrollContainer.removeEventListener('wheel', handleWheel);
+    };
+  }, [timelineElements]); // Add timelineElements as a dependency
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  return (
     <div className="min-h-screen bg-gradient-to-br from-darkblue via-muted to-darkpurple py-12 px-4 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-7xl mx-auto space-y-8"
-      >
+      <div className="max-w-7xl mx-auto space-y-8">
         <h1 className="text-4xl font-bold text-primary mt-10">About Editor</h1>
         <AdminNav />
 
         <div className="bg-muted rounded-xl shadow-lg p-6">
-          <div className="relative w-full h-[calc(90vh-300px)] overflow-hidden">
-            <AnimatePresence initial={false} custom={direction}>
-              <motion.div 
-                key={currentSection}
-                custom={direction}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                variants={{
-                  enter: (direction) => ({
-                    x: direction > 0 ? '100%' : '-100%',
-                    opacity: 0
-                  }),
-                  center: {
-                    x: 0,
-                    opacity: 1
-                  },
-                  exit: (direction) => ({
-                    x: direction < 0 ? '100%' : '-100%',
-                    opacity: 0
-                  })
-                }}
-                transition={{
-                  x: { type: "spring", stiffness: 200, damping: 25 },
-                  opacity: { duration: 0.2 }
-                }}
-                className="w-full h-full absolute"
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+            <h2 className="text-2xl font-semibold text-primary">Timeline Elements</h2>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-secondary/80 transition-colors duration-200"
               >
-                {timelineEvents.length > 0 && (
-                  <TimelineSection 
-                    event={timelineEvents[currentSection]} 
-                    index={currentSection}
-                    calculateAge={calculateAge}
-                    isEditing={isEditing}
-                    setIsEditing={setIsEditing}
-                    onUpdate={handleEventUpdate}
-                    onCreate={handleEventCreate}
-                    onDelete={handleEventDelete}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
+                {isExpanded ? 'Collapse' : 'Expand'}
+              </button>
+              <button
+                onClick={handleElementCreate}
+                className="bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent/80 transition-colors duration-200 flex items-center justify-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Add New Element
+              </button>
+            </div>
           </div>
-          <div className="mt-6 flex justify-center space-x-4">
-            <Button onClick={() => navigateSection(currentSection - 1)} disabled={currentSection === 0}>
-              Previous
-            </Button>
-            <Button onClick={() => navigateSection(currentSection + 1)} disabled={currentSection === timelineEvents.length - 1}>
-              Next
-            </Button>
-            <Button onClick={() => setIsEditing(true)} variant="accent">
-              Edit
-            </Button>
-            <Button
-              onClick={() => {
-                setTimelineEvents([...timelineEvents, { year: '', title: '', icon: '', shortDescription: '', longDescription: '' }]);
-                setCurrentSection(timelineEvents.length);
-                setIsEditing(true);
-              }}
-              variant="success"
-            >
-              Add New
-            </Button>
-          </div>
+
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={timelineElements.map(el => el._id)} strategy={horizontalListSortingStrategy}>
+              <div 
+                ref={scrollContainerRef} 
+                className={`overflow-x-auto pb-4 custom-scrollbar transition-all duration-300`}
+              >
+                <div className="flex flex-nowrap space-x-4 min-w-max">
+                  {timelineElements.map((element) => (
+                    <SortableItem 
+                      key={element._id} 
+                      element={element}
+                      onUpdate={handleElementUpdate}
+                      onDelete={handleElementDelete}
+                      isExpanded={isExpanded}
+                    />
+                  ))}
+                </div>
+              </div>
+            </SortableContext>
+          </DndContext>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
-
-const TimelineSection = ({ event, index, calculateAge, isEditing, setIsEditing, onUpdate, onCreate, onDelete }) => {
-  const [formData, setFormData] = useState(event);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isIconSelectorOpen, setIsIconSelectorOpen] = useState(false);
-
-  const backgroundColors = [
-    'from-primary/20 to-secondary/20',
-    'from-secondary/20 to-accent/20',
-    'from-accent/20 to-highlight/20',
-    'from-highlight/20 to-darkblue/20',
-    'from-darkblue/20 to-darkpurple/20',
-    'from-darkpurple/20 to-darkgreen/20',
-    'from-darkgreen/20 to-muted/20',
-    'from-muted/20 to-primary/20',
-  ];
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleIconChange = (icon) => {
-    setFormData({ ...formData, icon });
-    setIsIconSelectorOpen(false);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData._id) {
-      onUpdate(formData);
-    } else {
-      onCreate(formData);
-    }
-  };
-
-  if (isEditing) {
-    return (
-      <form onSubmit={handleSubmit} className="w-full h-full flex flex-col items-center justify-center p-8 bg-background text-text">
-        <Input
-          type="number"
-          name="year"
-          value={formData.year}
-          onChange={handleChange}
-          placeholder="Year"
-          required
-        />
-        <Input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          placeholder="Title"
-          required
-        />
-        <div onClick={(e) => e.preventDefault()}>
-          <IconSelector
-            value={formData.icon}
-            onChange={handleIconChange}
-            color="text-accent"
-            onOpen={() => setIsIconSelectorOpen(true)}
-            onClose={() => setIsIconSelectorOpen(false)}
-          />
-        </div>
-        <TextArea
-          name="shortDescription"
-          value={formData.shortDescription}
-          onChange={handleChange}
-          placeholder="Short description"
-          required
-        />
-        <TextArea
-          name="longDescription"
-          value={formData.longDescription}
-          onChange={handleChange}
-          placeholder="Long description"
-          required
-        />
-        <div className="flex space-x-4 mt-4">
-          <Button type="submit" variant="primary">Save</Button>
-          <Button 
-            type="button" 
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!isIconSelectorOpen) {
-                setIsEditing(false);
-              }
-            }} 
-            variant="secondary"
-          >
-            Cancel
-          </Button>
-          {event._id && (
-            <Button type="button" onClick={() => onDelete(event._id)} variant="danger">Delete</Button>
-          )}
-        </div>
-      </form>
-    );
-  }
-
-  return (
-    <div className={`w-full h-full flex flex-col items-center justify-center bg-gradient-to-br ${backgroundColors[index % backgroundColors.length]} p-8`}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center flex flex-col items-center justify-center"
-      >
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          className="text-6xl mb-4 text-primary"
-        >
-          <i className={event.icon} />
-        </motion.div>
-        <motion.h2
-          whileHover={{ scale: 1.05 }}
-          className="text-5xl font-bold text-primary mb-4"
-        >
-          {event.year}
-        </motion.h2>
-        <motion.h3
-          whileHover={{ scale: 1.05 }}
-          className="text-3xl font-semibold mb-4 text-secondary"
-        >
-          {event.title}
-        </motion.h3>
-        <motion.p
-          whileHover={{ scale: 1.02 }}
-          className="text-xl mb-6 max-w-2xl text-text"
-        >
-          {event.shortDescription}
-        </motion.p>
-        <motion.div
-          initial={false}
-          animate={{ height: isExpanded ? 'auto' : '0' }}
-          className="overflow-hidden"
-        >
-          <motion.p
-            whileHover={{ scale: 1.02 }}
-            className="text-lg mb-4 max-w-3xl text-text"
-          >
-            {event.longDescription}
-          </motion.p>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center justify-center text-accent"
-          >
-            <i className="fa-solid fa-child-reaching mr-2" />
-            <span>Age: {calculateAge(event.year)}</span>
-          </motion.div>
-        </motion.div>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-4 text-primary hover:text-accent transition-colors"
-        >
-          <i className={isExpanded ? "fa-solid fa-chevron-up" : "fa-solid fa-chevron-down"} size="2x" />
-        </motion.button>
-      </motion.div>
-    </div>
-  );
-};
-
-const Button = ({ children, variant = 'primary', ...props }) => {
-  const baseClasses = 'px-4 py-2 rounded-lg font-semibold transition-all duration-200 ease-in-out shadow-md';
-  const variantClasses = {
-    primary: 'bg-primary text-background hover:bg-primary/80',
-    secondary: 'bg-secondary text-background hover:bg-secondary/80',
-    accent: 'bg-accent text-background hover:bg-accent/80',
-    success: 'bg-green-500 text-background hover:bg-green-600',
-    danger: 'bg-red-500 text-background hover:bg-red-600',
-  };
-
-  return (
-    <button className={`${baseClasses} ${variantClasses[variant]}`} {...props}>
-      {children}
-    </button>
-  );
-};
-
-const Input = ({ ...props }) => (
-  <input
-    className="w-full max-w-md text-xl mb-4 text-center bg-background border-b-2 border-primary focus:border-accent transition-colors duration-200 ease-in-out outline-none"
-    {...props}
-  />
-);
-
-const TextArea = ({ ...props }) => (
-  <textarea
-    className="w-full max-w-3xl text-lg mb-4 p-2 bg-background border-2 border-highlight focus:border-accent transition-colors duration-200 ease-in-out outline-none resize-none"
-    {...props}
-  />
-);
 
 export default AboutEditor;

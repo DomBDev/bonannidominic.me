@@ -23,6 +23,7 @@ const uploadRoutes = require('./routes/upload');
 const viewRoutes = require('./routes/views');
 const timelineRoutes = require('./routes/timeline');
 const contactRoutes = require('./routes/contacts');
+const authRoutes = require('./routes/auth');
 app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/skills', skillRoutes);
@@ -30,6 +31,7 @@ app.use('/api/timeline', timelineRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/views', viewRoutes);
 app.use('/api/contacts', contactRoutes);
+app.use('/api/auth', authRoutes);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
