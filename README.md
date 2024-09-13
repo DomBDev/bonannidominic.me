@@ -26,7 +26,6 @@ This personal portfolio website effectively highlights my journey, skills, and a
 - **Project Showcase:** Detailed section highlighting key projects, including skills used, timelines, learnings, and links to GitHub repositories and live demos.
 - **Interactive ScrollNav:** Custom-built navigation for smooth scrolling through different sections of the site.
 - **Contact Form:** Functional contact form for inquiries, integrated with backend for data persistence.
-- **Dark/Light Mode Toggle:** Users can switch between dark and light themes for comfortable viewing.
 
 ### Backend
 
