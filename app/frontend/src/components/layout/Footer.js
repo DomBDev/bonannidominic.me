@@ -23,7 +23,7 @@ const Footer = () => {
         {/* Add more social media icons as needed */}
       </div>
       <div className="text-sm px-4">
-        <p>&copy; 2023 Dominic [name] All rights reserved.</p>
+        <p>&copy; 2024 Dominic Bonanni All rights reserved.</p>
       </div>
       <div className="flex items-center space-x-4">
         <a href="#contact" className="text-[#6dabca] hover:text-[#ebe2e1]">

@@ -102,7 +102,7 @@ const ProfileCard = ({ totalViews, totalProjects }) => {
           alt="Profile"
         />
       </div>
-      <h2 className="text-xl text-center text-white font-bold mb-2">Dominic [name]</h2>
+      <h2 className="text-xl text-center text-white font-bold mb-2">Dominic Bonanni</h2>
       <p className="text-gray-300 mb-4 text-center">
         Passionate about technology and innovation. Always seeking new challenges and opportunities to learn and grow.
       </p>

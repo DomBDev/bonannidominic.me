@@ -41,7 +41,7 @@ const Navbar = () => {
           className="text-primary text-2xl font-bold cursor-pointer"
           href="/"
         >
-          Dominic [name]
+          Dominic Bonanni
         </motion.a>
         <div className="hidden md:flex items-center space-x-8">
           <motion.a
