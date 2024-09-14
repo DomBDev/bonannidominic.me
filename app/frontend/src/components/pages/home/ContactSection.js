@@ -69,7 +69,7 @@ const ContactSection = () => {
                         <FaLinkedin className="text-3xl" />
                     </motion.a>
                     <motion.a
-                        href="https://twitter.com/DomBDev"
+                        href="https://twitter.com/"
                         target="_blank"
                         rel="noopener noreferrer"
                         whileHover={{ scale: 1.2 }}

@@ -11,16 +11,15 @@ const Footer = () => {
       className="bg-[#151515] text-[#ebe2e1] p-4 flex justify-between items-center"
     >
       <div className="flex items-center space-x-4">
-        <a href="https://twitter.com/yourprofile" className="text-[#6dabca] hover:text-[#ebe2e1]">
+        <a href="https://twitter.com/" className="text-[#6dabca] hover:text-[#ebe2e1]">
           <FaTwitter className="w-6 h-6" />
         </a>
-        <a href="https://linkedin.com/in/yourprofile" className="text-[#6dabca] hover:text-[#ebe2e1]">
+        <a href="https://www.linkedin.com/in/bonanni-dominic/" className="text-[#6dabca] hover:text-[#ebe2e1]">
           <FaLinkedin className="w-6 h-6" />
         </a>
-        <a href="https://github.com/yourprofile" className="text-[#6dabca] hover:text-[#ebe2e1]">
+        <a href="https://github.com/DomBDev" className="text-[#6dabca] hover:text-[#ebe2e1]">
           <FaGithub className="w-6 h-6" />
         </a>
-        {/* Add more social media icons as needed */}
       </div>
       <div className="text-sm px-4">
         <p>&copy; 2024 Dominic Bonanni All rights reserved.</p>

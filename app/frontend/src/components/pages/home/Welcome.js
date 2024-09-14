@@ -98,7 +98,7 @@ const ProfileCard = ({ totalViews, totalProjects }) => {
       <div className="flex items-center justify-center mb-4">
         <img
           className="w-32 h-32 rounded-full shadow-lg border-4 border-primary"
-          src="https://via.placeholder.com/150"
+          src="https://media.licdn.com/dms/image/v2/D4E03AQFTxWWGdxLxfQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1713118488934?e=1731542400&v=beta&t=LToIDy2y5F58TfUqCNM_PZSAWyg_rsaJYosdoG1pyYQ"
           alt="Profile"
         />
       </div>
@@ -130,13 +130,13 @@ const ProfileCard = ({ totalViews, totalProjects }) => {
         </div>
       </div>
       <div className="flex justify-center space-x-4 mt-4">
-        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-highlight transition duration-300 transform hover:scale-125">
+        <a href="https://github.com/DomBDev" target="_blank" rel="noopener noreferrer" className="text-white hover:text-highlight transition duration-300 transform hover:scale-125">
           <i className="fab fa-github text-2xl"></i>
         </a>
-        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-highlight transition duration-300 transform hover:scale-125">
+        <a href="https://www.linkedin.com/in/bonanni-dominic/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-highlight transition duration-300 transform hover:scale-125">
           <i className="fab fa-linkedin text-2xl"></i>
         </a>
-        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-highlight transition duration-300 transform hover:scale-125">
+        <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-highlight transition duration-300 transform hover:scale-125">
           <i className="fab fa-twitter text-2xl"></i>
         </a>
       </div>
