@@ -37,16 +37,23 @@ app.use('/api/auth', authRoutes);
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Serve frontend
-if (process.env.NODE_ENV === 'production') {
-  const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'build');
-  console.log('Frontend build path:', frontendBuildPath);
+// Update the frontend build path
+const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'build');
+console.log('Frontend build path:', frontendBuildPath);
 
-  app.use(express.static(frontendBuildPath));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
-  });
-}
+// Serve static files from the React frontend app
+app.use(express.static(frontendBuildPath));
+
+// Anything that doesn't match the above, send back index.html
+app.get('*', (req, res) => {
+  const indexPath = path.join(frontendBuildPath, 'index.html');
+  console.log('Attempting to serve:', indexPath);
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('Frontend build not found');
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
