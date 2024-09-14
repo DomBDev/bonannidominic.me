@@ -71,10 +71,11 @@ const Navbar = () => {
           {isLoggedIn() && (
             <motion.a
               whileHover={{ color: '#6dabca' }}
+              transition={{ duration: 0.1 }}
               href="/admin/dashboard"
               className="text-text transition duration-100 flex items-center"
             >
-              Dashboard
+              Dashboard {isActive('/admin/dashboard') && <span className="ml-2 w-2 h-2 bg-primary rounded-full"></span>}
             </motion.a>
           )}
           <motion.div
@@ -138,7 +139,7 @@ const Navbar = () => {
               href="/admin/dashboard"
               className="block text-center text-text transition duration-300 flex justify-center items-center"
             >
-              Dashboard
+              Dashboard {isActive('/admin/dashboard') && <span className="ml-2 w-2 h-2 bg-primary rounded-full"></span>}
             </motion.a>
           )}
           <motion.div
