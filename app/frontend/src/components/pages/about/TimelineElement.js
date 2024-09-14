@@ -17,8 +17,7 @@ const TimelineElementEditor = ({ element, onUpdate, onDelete, isExpanded }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token'); // Assuming you store the token in localStorage
-            await onUpdate(editedElement, token);
+            await onUpdate(editedElement);
             setIsEditing(false);
         } catch (error) {
             console.error('Error updating timeline element:', error);
@@ -49,7 +48,7 @@ const TimelineElementEditor = ({ element, onUpdate, onDelete, isExpanded }) => {
                     animate={{ height: isExpanded ? 'auto' : '150px', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="overflow-hidden"
+                    className="overflow-hidden w-full h-full"
                 >
                     {isEditing ? renderEditForm() : renderPreview()}
                 </motion.div>
@@ -115,7 +114,7 @@ const TimelineElementEditor = ({ element, onUpdate, onDelete, isExpanded }) => {
 
     return (
         <div className="bg-background p-4 rounded-lg shadow-lg h-full flex flex-col w-full">
-            <div className="flex mb-4 overflow-hidden">
+            <div className="flex mb-4 overflow-hidden w-full h-full">
                 {renderContent()}
             </div>
             <div className="flex justify-start space-x-3">
@@ -176,28 +175,35 @@ const TimelineElementEditor = ({ element, onUpdate, onDelete, isExpanded }) => {
 };
 
 const ProfilePreview = ({ element }) => (
-    <div className="bg-gradient-to-br from-primary/20 to-secondary/20 p-4 rounded text-center">
+    <div className="bg-gradient-to-br from-primary/20 to-secondary/20 p-4 rounded text-center w-full">
         <h2 className="text-2xl font-bold text-primary mb-2">My Developer Profile</h2>
         <div className="text-sm">
-            <h3 className="font-semibold mt-2">About Me</h3>
-            <p>{element.aboutMe}</p>
-            <h3 className="font-semibold mt-2">Hobbies</h3>
-            <p>{element.hobbies}</p>
-            <h3 className="font-semibold mt-2">Interests</h3>
-            <p>{element.interests}</p>
+            {Object.entries(element.profile || {}).map(([key, value]) => (
+                <div key={key}>
+                    <h3 className="font-semibold mt-2">{key}</h3>
+                    <p>{value}</p>
+                </div>
+            ))}
         </div>
     </div>
 );
 
 const FuturePreview = ({ element }) => (
-    <div className="bg-gradient-to-br from-secondary/20 to-accent/20 p-4 rounded text-center">
+    <div className="bg-gradient-to-br from-secondary/20 to-accent/20 p-4 rounded text-center w-full">
         <h2 className="text-2xl font-bold text-primary mb-2">Future Plans</h2>
-        <p className="text-sm">{element.longDescription}</p>
+        <div className="text-sm">
+            {Object.entries(element.future || {}).map(([key, value]) => (
+                <div key={key}>
+                    <h3 className="font-semibold mt-2">{key}</h3>
+                    <p>{value}</p>
+                </div>
+            ))}
+        </div>
     </div>
 );
 
 const EventPreview = ({ element }) => (
-    <div className="bg-gradient-to-br from-accent/20 to-highlight/20 p-4 rounded text-center">
+    <div className="bg-gradient-to-br from-accent/20 to-highlight/20 p-4 rounded text-center w-full">
         <div className="text-4xl mb-2">
             <i className={element.icon} />
         </div>
@@ -209,7 +215,7 @@ const EventPreview = ({ element }) => (
 );
 
 const CurrentPreview = ({ element }) => (
-    <div className="bg-gradient-to-br from-darkblue/20 to-darkpurple/20 p-4 rounded text-center">
+    <div className="bg-gradient-to-br from-darkblue/20 to-darkpurple/20 p-4 rounded text-center w-full">
         <h2 className="text-2xl font-bold text-primary mb-2">Current</h2>
         <p className="text-sm">{element.longDescription}</p>
     </div>
@@ -227,53 +233,163 @@ const InputField = ({ label, name, value, onChange, type = 'text', className = '
     />
 );
 
-const TextAreaField = ({ label, name, value, onChange, rows = 4 }) => (
-    <textarea
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={label}
-        rows={rows}
-        className="w-full p-2 bg-transparent text-text border-b border-gray-600 focus:outline-none focus:border-accent text-center"
-    />
-);
+const TextAreaField = ({ label, name, value, onChange, rows = 4 }) => {
+    const textareaRef = React.useRef(null);
 
-const ProfileEditForm = ({ formData, handleChange }) => (
-    <div className="bg-gradient-to-br from-primary/20 to-secondary/20 p-4 rounded text-center space-y-4">
-        <h2 className="text-2xl font-bold text-primary mb-2">My Developer Profile</h2>
-        <TextAreaField
-            label="About Me"
-            name="aboutMe"
-            value={formData.aboutMe}
-            onChange={handleChange}
-        />
-        <TextAreaField
-            label="Hobbies"
-            name="hobbies"
-            value={formData.hobbies}
-            onChange={handleChange}
-        />
-        <TextAreaField
-            label="Interests"
-            name="interests"
-            value={formData.interests}
-            onChange={handleChange}
-        />
-    </div>
-);
+    React.useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [value]);
 
-const FutureEditForm = ({ formData, handleChange }) => (
-    <div className="bg-gradient-to-br from-secondary/20 to-accent/20 p-4 rounded text-center space-y-4">
-        <h2 className="text-2xl font-bold text-primary mb-2">Future Plans</h2>
-        <TextAreaField
-            label="Future Plans"
-            name="longDescription"
-            value={formData.longDescription}
-            onChange={handleChange}
+    return (
+        <textarea
+            ref={textareaRef}
+            id={name}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={label}
+            rows={1}
+            className="w-full p-2 bg-transparent text-text border-b border-gray-600 focus:outline-none focus:border-accent text-center resize-none overflow-hidden"
         />
-    </div>
-);
+    );
+};
+
+const ProfileEditForm = ({ formData, handleChange }) => {
+    const [sections, setSections] = useState(formData.profile || {});
+    const [editingKeys, setEditingKeys] = useState({});
+
+    const handleKeyChange = (oldKey, newKey) => {
+        if (oldKey === newKey) return;
+        setSections(prevSections => {
+            const newSections = { ...prevSections };
+            newSections[newKey] = newSections[oldKey];
+            delete newSections[oldKey];
+            handleChange({ target: { name: 'profile', value: newSections } });
+            return newSections;
+        });
+        setEditingKeys(prev => ({ ...prev, [oldKey]: undefined }));
+    };
+
+    const handleSectionChange = (key, value) => {
+        setSections(prevSections => {
+            const updatedSections = { ...prevSections, [key]: value };
+            handleChange({ target: { name: 'profile', value: updatedSections } });
+            return updatedSections;
+        });
+    };
+
+    const addSection = () => {
+        const newKey = `Section ${Object.keys(sections).length + 1}`;
+        handleSectionChange(newKey, '');
+    };
+
+    const removeSection = (key) => {
+        setSections(prevSections => {
+            const { [key]: removed, ...rest } = prevSections;
+            handleChange({ target: { name: 'profile', value: rest } });
+            return rest;
+        });
+    };
+
+    return (
+        <div className="bg-gradient-to-br from-primary/20 to-secondary/20 p-4 rounded text-center space-y-4 w-full">
+            <h2 className="text-2xl font-bold text-primary mb-2">My Developer Profile</h2>
+            {Object.entries(sections).map(([key, value]) => (
+                <div key={key} className="flex items-center space-x-2">
+                    <input
+                        type="text"
+                        value={editingKeys[key] !== undefined ? editingKeys[key] : key}
+                        onChange={(e) => setEditingKeys({ ...editingKeys, [key]: e.target.value })}
+                        onBlur={(e) => handleKeyChange(key, e.target.value)}
+                        className="w-1/3 p-2 bg-transparent text-text border-b border-gray-600 focus:outline-none focus:border-accent"
+                    />
+                    <textarea
+                        value={value}
+                        onChange={(e) => handleSectionChange(key, e.target.value)}
+                        rows={value.split('\n').length}
+                        className="w-2/3 p-2 bg-transparent text-text border-b border-gray-600 focus:outline-none focus:border-accent resize-none"
+                    />
+                    <button onClick={() => removeSection(key)} className="text-red-500 hover:text-red-700">
+                        <i className="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            ))}
+            <button onClick={addSection} className="bg-accent text-white px-4 py-2 rounded">
+                Add Section
+            </button>
+        </div>
+    );
+};
+
+const FutureEditForm = ({ formData, handleChange }) => {
+    const [sections, setSections] = useState(formData.future || {});
+    const [editingKeys, setEditingKeys] = useState({});
+
+    const handleKeyChange = (oldKey, newKey) => {
+        if (oldKey === newKey) return;
+        setSections(prevSections => {
+            const newSections = { ...prevSections };
+            newSections[newKey] = newSections[oldKey];
+            delete newSections[oldKey];
+            handleChange({ target: { name: 'future', value: newSections } });
+            return newSections;
+        });
+    };
+
+    const handleSectionChange = (key, value) => {
+        setSections(prevSections => {
+            const updatedSections = { ...prevSections, [key]: value };
+            handleChange({ target: { name: 'future', value: updatedSections } });
+            return updatedSections;
+        });
+    };
+
+    const addSection = () => {
+        const newKey = `Title ${Object.keys(sections).length + 1}`;
+        handleSectionChange(newKey, '');
+    };
+
+    const removeSection = (key) => {
+        const { [key]: removed, ...rest } = sections;
+        setSections(rest);
+        handleChange({ target: { name: 'future', value: rest } });
+    };
+
+    return (
+        <div className="bg-gradient-to-br from-secondary/20 to-accent/20 p-4 rounded text-center space-y-4">
+            <h2 className="text-2xl font-bold text-primary mb-2">Future Plans</h2>
+            {Object.entries(sections).map(([key, value]) => (
+                <div key={key} className="flex items-center space-x-2">
+                    <input
+                        type="text"
+                        value={editingKeys[key] || key}
+                        onChange={(e) => setEditingKeys({ ...editingKeys, [key]: e.target.value })}
+                        onBlur={(e) => {
+                            handleKeyChange(key, e.target.value);
+                            setEditingKeys({ ...editingKeys, [key]: undefined });
+                        }}
+                        className="w-1/3 p-2 bg-transparent text-text border-b border-gray-600 focus:outline-none focus:border-accent"
+                    />
+                    <TextAreaField
+                        value={value}
+                        onChange={(e) => handleSectionChange(key, e.target.value)}
+                        rows={3}
+                        className="w-2/3"
+                    />
+                    <button onClick={() => removeSection(key)} className="text-red-500 hover:text-red-700">
+                        <i className="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            ))}
+            <button onClick={addSection} className="bg-accent text-white px-4 py-2 rounded">
+                Add Section
+            </button>
+        </div>
+    );
+};
 
 const EventEditForm = ({ formData, handleChange, handleIconChange }) => (
     <div className="bg-gradient-to-br from-accent/20 to-highlight/20 p-4 rounded text-center space-y-4">

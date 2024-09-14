@@ -26,21 +26,19 @@ const timelineElementSchema = new mongoose.Schema({
     type: String,
     required: function() { return ['future', 'current'].includes(this.type); }
   },
-  aboutMe: {
-    type: String,
-    required: function() { return this.type === 'profile'; }
-  },
-  hobbies: {
-    type: String,
-    required: function() { return this.type === 'profile'; }
-  },
-  interests: {
-    type: String,
-    required: function() { return this.type === 'profile'; }
-  },
   order: {
     type: Number,
     required: true
+  },
+  profile: {
+    type: Map,
+    of: String,
+    required: function() { return this.type === 'profile'; }
+  },
+  future: {
+    type: Map,
+    of: String,
+    required: function() { return this.type === 'future'; }
   }
 }, { timestamps: true });
 

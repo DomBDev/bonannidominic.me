@@ -122,6 +122,7 @@ const AboutEditor = () => {
         icon: 'fa-star',
         shortDescription: 'Short description',
         longDescription: 'Long description',
+        order: timelineElements.length // Set the order to the current length of the array
       };
       await axios.post('http://localhost:5000/api/timeline', newElement);
       fetchTimelineElements();
@@ -135,6 +136,12 @@ const AboutEditor = () => {
 
   const handleElementUpdate = async (updatedElement) => {
     try {
+      // If the element is a profile or future type, ensure the data is properly structured
+      if (updatedElement.type === 'profile' || updatedElement.type === 'future') {
+        updatedElement[updatedElement.type] = Object.fromEntries(
+          Object.entries(updatedElement[updatedElement.type]).filter(([key, value]) => key && value)
+        );
+      }
       await axios.put(`http://localhost:5000/api/timeline/${updatedElement._id}`, updatedElement);
       fetchTimelineElements(); // Refresh the timeline elements after update
     } catch (error) {

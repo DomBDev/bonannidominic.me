@@ -15,6 +15,7 @@ import NotFound from './pages/public/NotFound.js';
 import SkillsEditor from './pages/admin/SkillsEditor.js';
 import AboutEditor from './pages/admin/AboutEditor.js';
 import AdminInbox from './pages/admin/AdminInbox.js';
+import './hooks/tokenRefresh';
 
 function App() {
   useRecordSiteView();

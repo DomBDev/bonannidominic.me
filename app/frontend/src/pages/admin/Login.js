@@ -15,6 +15,7 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/users/login', { email, password });
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
       navigate('/admin/dashboard');
       window.location.reload(); // Force a reload to update the header
     } catch (err) {

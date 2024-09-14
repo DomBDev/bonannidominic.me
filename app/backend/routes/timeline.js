@@ -24,6 +24,14 @@ router.post('/', auth, async (req, res) => {
       order: newOrder
     });
 
+    // Initialize profile and future as empty objects if not provided
+    if (element.type === 'profile' && !element.profile) {
+      element.profile = {};
+    }
+    if (element.type === 'future' && !element.future) {
+      element.future = {};
+    }
+
     const newElement = await element.save();
     res.status(201).json(newElement);
   } catch (err) {
@@ -64,7 +72,7 @@ router.put('/:id', auth, async (req, res) => {
     const updatedElement = await TimelineElement.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { new: true, runValidators: true }
     );
     if (!updatedElement) {
       return res.status(404).json({ message: 'Timeline element not found' });
@@ -105,11 +113,20 @@ router.post('/bulk', auth, async (req, res) => {
     const lastElement = await TimelineElement.findOne().sort({ order: -1 });
     let order = lastElement ? lastElement.order + 1 : 0;
 
-    // Add order to each element
-    const elementsWithOrder = elementsWithoutIds.map(element => ({
-      ...element,
-      order: order++
-    }));
+    // Add order to each element and initialize profile/future if needed
+    const elementsWithOrder = elementsWithoutIds.map(element => {
+      const newElement = {
+        ...element,
+        order: order++
+      };
+      if (newElement.type === 'profile' && !newElement.profile) {
+        newElement.profile = {};
+      }
+      if (newElement.type === 'future' && !newElement.future) {
+        newElement.future = {};
+      }
+      return newElement;
+    });
 
     const newElements = await TimelineElement.create(elementsWithOrder);
     res.status(201).json(newElements);
@@ -118,6 +135,5 @@ router.post('/bulk', auth, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
-
 
 module.exports = router;

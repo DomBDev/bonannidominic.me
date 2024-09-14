@@ -16,6 +16,7 @@ const AdminNav = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     window.location.href = '/login';
   };
 
@@ -63,6 +64,40 @@ const AdminNav = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, []);
+
+  useEffect(() => {
+    const checkTokenValidity = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          handleLogout();
+          return;
+        }
+
+        const response = await axios.post('http://localhost:5000/api/auth/check-token', {}, {
+          headers: { 'x-auth-token': token }
+        });
+
+        if (response.data.isValid) {
+          // Token is still valid, no action needed
+        } else if (response.data.refreshedToken) {
+          // Token was refreshed, update localStorage
+          localStorage.setItem('token', response.data.refreshedToken);
+        } else {
+          // Token is invalid and couldn't be refreshed, log out
+          handleLogout();
+        }
+      } catch (error) {
+        console.error('Error checking token validity:', error);
+        handleLogout();
+      }
+    };
+
+    checkTokenValidity();
+    const interval = setInterval(checkTokenValidity, 60000); // Check every minute
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
