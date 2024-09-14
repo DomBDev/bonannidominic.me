@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaTrash, FaEnvelope, FaEnvelopeOpen, FaSort, FaEye, FaCheck, FaTimes } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { FaTrash, FaEnvelope, FaEnvelopeOpen, FaSort, FaEye } from 'react-icons/fa';
 import AdminNav from './AdminNav';
 
 const AdminInbox = () => {
@@ -14,11 +14,7 @@ const AdminInbox = () => {
   const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
 
-  useEffect(() => {
-    fetchMessages();
-  }, [sortBy, sortOrder, filter]);
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:5000/api/contacts?sortBy=${sortBy}&sortOrder=${sortOrder}&filter=${filter}`);
@@ -29,7 +25,11 @@ const AdminInbox = () => {
       setError('Failed to fetch messages. Please try again.');
       setLoading(false);
     }
-  };
+  }, [sortBy, sortOrder, filter]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
 
   const handleSort = (field) => {
     if (field === sortBy) {

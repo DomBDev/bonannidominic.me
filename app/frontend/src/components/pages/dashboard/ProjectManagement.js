@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaPlus, FaEdit, FaTrash, FaSort, FaGithub, FaExternalLinkAlt, FaToggleOn, FaToggleOff, FaChevronDown, FaChevronUp } from 'react-icons/fa';
@@ -20,13 +20,7 @@ const ProjectManagement = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (isExpanded && token) {
-      fetchProjects();
-    }
-  }, [isExpanded, token]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       const projectsResponse = await axios.get('http://localhost:5000/api/projects', {
         headers: { 'x-auth-token': token }
@@ -44,7 +38,13 @@ const ProjectManagement = () => {
       setError('Failed to load projects. Please try again.');
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (isExpanded && token) {
+      fetchProjects();
+    }
+  }, [isExpanded, token, fetchProjects]);
 
   const handleDeleteProject = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {

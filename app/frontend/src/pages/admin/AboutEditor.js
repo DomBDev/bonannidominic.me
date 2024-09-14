@@ -46,21 +46,9 @@ const AboutEditor = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const scrollContainerRef = useRef(null);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const animationRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setAuthToken(token);
-    }
-    fetchTimelineElements();
-  }, []);
-
-  const fetchTimelineElements = async () => {
+  const fetchTimelineElements = React.useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/timeline');
       setTimelineElements(response.data);
@@ -73,7 +61,15 @@ const AboutEditor = () => {
         navigate('/login');
       }
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setAuthToken(token);
+    }
+    fetchTimelineElements();
+  }, [fetchTimelineElements]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -102,7 +98,7 @@ const AboutEditor = () => {
       };
 
       try {
-        const response = await axios.put('http://localhost:5000/api/timeline/reorder', reorderData);
+        await axios.put('http://localhost:5000/api/timeline/reorder', reorderData);
       } catch (error) {
         console.error('Error reordering timeline elements:', error);
         console.error('Error response:', error.response?.data);

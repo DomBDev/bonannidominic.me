@@ -93,16 +93,36 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    // Check if JWT_SECRET is set
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not set');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
+
     // Create and sign JWT
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '15m' }
     );
 
-    res.json({ token });
+    // Check if REFRESH_TOKEN_SECRET is set
+    if (!process.env.REFRESH_TOKEN_SECRET) {
+      console.error('REFRESH_TOKEN_SECRET is not set');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
+
+    // Create refresh token
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ token, refreshToken });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
