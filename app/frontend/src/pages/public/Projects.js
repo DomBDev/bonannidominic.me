@@ -11,14 +11,14 @@ const ProjectsHeader = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.75, delay: 0.2, ease: 'easeInOut' }}
-      className="text-center text-white max-w-7xl mx-auto flex flex-col justify-center items-center p-8 pb-20"
+      className="text-center text-white max-w-7xl mx-auto flex flex-col justify-center items-center p-4 sm:p-8 pb-12 sm:pb-20"
     >
-      <div className="text-5xl font-bold mb-4 relative inline-block">
-        <div className="max-w-sm w-full">
+      <div className="text-3xl sm:text-5xl font-bold mb-4 relative inline-block">
+        <div className="max-w-xs sm:max-w-sm w-full">
           <img src="https://see.fontimg.com/api/rf5/9Y2DK/N2YzOWQ5NTNjNzdhNDYwMTk1NTdhYmMwNmJiYzZjYjUudHRm/VGhlIEFyY2hpdmU/nature-beauty-personal-use.png?r=fs&h=140&w=1000&fg=000000&bg=FFFFFF&tb=1&s=140" alt="Projects" className="w-full invert" />
         </div>
         <svg
-          className="absolute -left-1 -bottom-7 w-full h-10"
+          className="absolute -left-1 -bottom-4 sm:-bottom-7 w-full h-6 sm:h-10"
           viewBox="0 0 100 10"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +40,7 @@ const ProjectsHeader = () => {
           </defs>
         </svg>
       </div>
-      <p className="text-xl pt-4">
+      <p className="text-base sm:text-xl pt-4">
         Here are some of the projects I have worked on, currently working on, and planning to work on in the future.
       </p>
     </motion.div>
@@ -69,15 +69,15 @@ const Projects = () => {
   }, []);
 
   if (loading) {
-    return <div className="text-white text-center pt-32">Loading projects...</div>;
+    return <div className="text-white text-center pt-16 sm:pt-32">Loading projects...</div>;
   }
 
   if (error) {
-    return <div className="text-white text-center pt-32">{error}</div>;
+    return <div className="text-white text-center pt-16 sm:pt-32">{error}</div>;
   }
 
   return (
-    <div className="pt-32 bg-gradient-to-br from-darkblue via-muted to-darkpurple min-h-screen relative overflow-hidden">
+    <div className="pt-16 sm:pt-32 bg-gradient-to-br from-darkblue via-muted to-darkpurple min-h-screen relative overflow-hidden">
       <link href="https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap" rel="stylesheet"></link>
       <BackgroundAnimation />
       <ProjectsHeader />
