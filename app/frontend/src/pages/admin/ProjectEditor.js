@@ -30,7 +30,7 @@ const ProjectEditor = () => {
 
   const fetchProject = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/projects/${id}`, {
+      const response = await axios.get(`/api/projects/${id}`, {
         headers: { 'x-auth-token': token }
       });
       setProject(response.data);
@@ -68,7 +68,7 @@ const ProjectEditor = () => {
 
     if (field === 'url' && oldItem.url !== value && oldItem.url.startsWith('/uploads/')) {
       try {
-        await axios.delete(`http://localhost:5000/api/upload${oldItem.url}`, {
+        await axios.delete(`/api/upload${oldItem.url}`, {
           headers: { 'x-auth-token': token }
         });
       } catch (error) {
@@ -91,7 +91,7 @@ const ProjectEditor = () => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
+      const response = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token }
       });
 
@@ -120,13 +120,13 @@ const ProjectEditor = () => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
+      const response = await axios.post('/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token }
       });
 
       // Delete the old image if it exists
       if (project.image && project.image.startsWith('/uploads/')) {
-        await axios.delete(`http://localhost:5000/api/upload${project.image}`, {
+        await axios.delete(`/api/upload${project.image}`, {
           headers: { 'x-auth-token': token }
         });
       }
@@ -152,7 +152,7 @@ const ProjectEditor = () => {
     const itemToRemove = project.media[index];
     if (itemToRemove.url.startsWith('/uploads/')) {
       try {
-        await axios.delete(`http://localhost:5000/api/upload${itemToRemove.url}`, {
+        await axios.delete(`/api/upload${itemToRemove.url}`, {
           headers: { 'x-auth-token': token }
         });
       } catch (error) {
@@ -169,7 +169,7 @@ const ProjectEditor = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/projects/${id}`, {
+      await axios.put(`/api/projects/${id}`, {
         ...project,
         featured: project.featured
       }, {
@@ -190,7 +190,7 @@ const ProjectEditor = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/projects/${id}`, {
+        await axios.delete(`/api/projects/${id}`, {
           headers: { 'x-auth-token': token }
         });
         alert('Project deleted successfully!');

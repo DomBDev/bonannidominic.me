@@ -19,7 +19,7 @@ const SkillsManagement = () => {
 
   const fetchSkills = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/skills');
+      const response = await axios.get('/api/skills');
       setSkills(response.data);
       setLoading(false);
     } catch (err) {
@@ -32,7 +32,7 @@ const SkillsManagement = () => {
   const handleDeleteSkill = async (id) => {
     if (window.confirm('Are you sure you want to delete this skill?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/skills/${id}`);
+        await axios.delete(`/api/skills/${id}`);
         setSkills(skills.filter(skill => skill._id !== id));
       } catch (err) {
         console.error('Error deleting skill:', err);
@@ -43,7 +43,7 @@ const SkillsManagement = () => {
 
   const handleToggleCore = async (id, currentCoreStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/skills/${id}`, {
+      await axios.put(`/api/skills/${id}`, {
         isCore: !currentCoreStatus
       });
       setSkills(skills.map(skill => 

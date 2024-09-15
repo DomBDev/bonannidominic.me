@@ -17,7 +17,7 @@ const AdminInbox = () => {
   const fetchMessages = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/contacts?sortBy=${sortBy}&sortOrder=${sortOrder}&filter=${filter}`);
+      const response = await axios.get(`/api/contacts?sortBy=${sortBy}&sortOrder=${sortOrder}&filter=${filter}`);
       setMessages(response.data);
       setLoading(false);
     } catch (error) {
@@ -60,7 +60,7 @@ const AdminInbox = () => {
 
   const handleMarkAsRead = async (ids) => {
     try {
-      await axios.put('http://localhost:5000/api/contacts/mark-read', { ids });
+      await axios.put('/api/contacts/mark-read', { ids });
       fetchMessages();
     } catch (error) {
       console.error('Error marking messages as read:', error);
@@ -69,7 +69,7 @@ const AdminInbox = () => {
 
   const handleMarkAsUnread = async (ids) => {
     try {
-      await axios.put('http://localhost:5000/api/contacts/mark-unread', { ids });
+      await axios.put('/api/contacts/mark-unread', { ids });
       fetchMessages();
     } catch (error) {
       console.error('Error marking messages as unread:', error);
@@ -78,7 +78,7 @@ const AdminInbox = () => {
 
   const handleDelete = async (ids) => {
     try {
-      await axios.delete('http://localhost:5000/api/contacts', { data: { ids } });
+      await axios.delete('/api/contacts', { data: { ids } });
       fetchMessages();
       setSelectedMessages([]);
     } catch (error) {

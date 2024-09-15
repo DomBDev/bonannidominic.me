@@ -81,9 +81,9 @@ const Dashboard = () => {
 
     try {
       const [totalViewsResponse, projectsResponse, allViewsResponse] = await Promise.allSettled([
-        axios.get('http://localhost:5000/api/views/total', config),
-        axios.get('http://localhost:5000/api/projects', config),
-        axios.get('http://localhost:5000/api/views', config)
+        axios.get('/api/views/total', config),
+        axios.get('/api/projects', config),
+        axios.get('/api/views', config)
       ]);
 
       if (totalViewsResponse.status === 'fulfilled') {
@@ -96,7 +96,7 @@ const Dashboard = () => {
         const projectsWithViews = await Promise.all(
           projectsResponse.value.data.map(async (project) => {
             try {
-              const viewsResponse = await axios.get(`http://localhost:5000/api/views/project/${project._id}`, config);
+              const viewsResponse = await axios.get(`/api/views/project/${project._id}`, config);
               return { ...project, views: viewsResponse.data.projectViews };
             } catch (err) {
               console.error(`Failed to fetch views for project ${project._id}:`, err);

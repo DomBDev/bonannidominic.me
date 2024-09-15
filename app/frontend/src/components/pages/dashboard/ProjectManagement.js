@@ -22,11 +22,11 @@ const ProjectManagement = () => {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const projectsResponse = await axios.get('http://localhost:5000/api/projects', {
+      const projectsResponse = await axios.get('/api/projects', {
         headers: { 'x-auth-token': token }
       });
       const projectsWithViews = await Promise.all(projectsResponse.data.map(async (project) => {
-        const viewsResponse = await axios.get(`http://localhost:5000/api/views/project/${project._id}`, {
+        const viewsResponse = await axios.get(`/api/views/project/${project._id}`, {
           headers: { 'x-auth-token': token }
         });
         return { ...project, views: viewsResponse.data.projectViews };
@@ -49,7 +49,7 @@ const ProjectManagement = () => {
   const handleDeleteProject = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/projects/${id}`, {
+        await axios.delete(`/api/projects/${id}`, {
           headers: { 'x-auth-token': token }
         });
         setProjects(projects.filter(project => project._id !== id));
@@ -62,7 +62,7 @@ const ProjectManagement = () => {
 
   const handleToggleFeatured = async (id, currentFeaturedStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/projects/${id}`, {
+      await axios.put(`/api/projects/${id}`, {
         featured: !currentFeaturedStatus
       }, {
         headers: { 'x-auth-token': token }

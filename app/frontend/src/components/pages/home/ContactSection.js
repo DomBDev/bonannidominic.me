@@ -20,7 +20,7 @@ const ContactSection = () => {
         setNotification({ message: 'Sending...', type: 'info' });
 
         try {
-            await axios.post('http://localhost:5000/api/contacts', formData);
+            await axios.post('/api/contacts', formData);
             setNotification({ message: 'Message sent successfully!', type: 'success' });
             setFormData({ name: '', email: '', message: '' });
         } catch (error) {

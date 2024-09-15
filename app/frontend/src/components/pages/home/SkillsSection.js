@@ -10,7 +10,7 @@ const SkillsSection = () => {
   useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/skills');
+        const response = await axios.get('/api/skills');
         const allSkills = response.data.filter(skill => skill.name && skill.category);
         const core = allSkills.filter(skill => skill.isCore);
         const nonCore = allSkills.filter(skill => !skill.isCore);

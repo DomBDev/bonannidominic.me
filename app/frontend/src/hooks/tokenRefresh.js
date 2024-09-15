@@ -34,7 +34,7 @@ axios.interceptors.response.use(
       isRefreshing = true;
 
       return new Promise((resolve, reject) => {
-        axios.post('http://localhost:5000/api/auth/refresh', {
+        axios.post('/api/auth/refresh', {
           refreshToken: localStorage.getItem('refreshToken')
         })
           .then(({ data }) => {

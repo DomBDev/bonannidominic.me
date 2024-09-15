@@ -50,7 +50,7 @@ const AboutEditor = () => {
 
   const fetchTimelineElements = React.useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/timeline');
+      const response = await axios.get('/api/timeline');
       setTimelineElements(response.data);
       setLoading(false);
     } catch (error) {
@@ -98,7 +98,7 @@ const AboutEditor = () => {
       };
 
       try {
-        await axios.put('http://localhost:5000/api/timeline/reorder', reorderData);
+        await axios.put('/api/timeline/reorder', reorderData);
       } catch (error) {
         console.error('Error reordering timeline elements:', error);
         console.error('Error response:', error.response?.data);
@@ -120,7 +120,7 @@ const AboutEditor = () => {
         longDescription: 'Long description',
         order: timelineElements.length // Set the order to the current length of the array
       };
-      await axios.post('http://localhost:5000/api/timeline', newElement);
+      await axios.post('/api/timeline', newElement);
       fetchTimelineElements();
     } catch (error) {
       console.error('Error creating timeline element:', error);
@@ -138,7 +138,7 @@ const AboutEditor = () => {
           Object.entries(updatedElement[updatedElement.type]).filter(([key, value]) => key && value)
         );
       }
-      await axios.put(`http://localhost:5000/api/timeline/${updatedElement._id}`, updatedElement);
+      await axios.put(`/api/timeline/${updatedElement._id}`, updatedElement);
       fetchTimelineElements(); // Refresh the timeline elements after update
     } catch (error) {
       console.error('Error updating timeline element:', error);
@@ -150,7 +150,7 @@ const AboutEditor = () => {
 
   const handleElementDelete = async (elementId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/timeline/${elementId}`);
+      await axios.delete(`/api/timeline/${elementId}`);
       fetchTimelineElements();
     } catch (error) {
       console.error('Error deleting timeline element:', error);

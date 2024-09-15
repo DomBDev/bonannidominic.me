@@ -22,7 +22,7 @@ const AdminNav = () => {
 
   const fetchUnreadMessages = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/contacts/', {
+      const response = await axios.get('/api/contacts/', {
         params: {
           filter: 'unread',
           sortBy: 'createdAt',
@@ -38,7 +38,7 @@ const AdminNav = () => {
 
   const handleMarkAsRead = async (ids) => {
     try {
-      await axios.put('http://localhost:5000/api/contacts/mark-read', { ids });
+      await axios.put('/api/contacts/mark-read', { ids });
       // After marking as read, fetch the updated unread messages
       fetchUnreadMessages();
     } catch (error) {
@@ -75,7 +75,7 @@ const AdminNav = () => {
           return;
         }
 
-        const response = await axios.post('http://localhost:5000/api/auth/check-token', {}, {
+        const response = await axios.post('/api/auth/check-token', {}, {
           headers: { 'x-auth-token': token }
         });
 

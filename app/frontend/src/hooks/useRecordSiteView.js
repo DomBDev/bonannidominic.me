@@ -15,7 +15,7 @@ const useRecordSiteView = () => {
       }
 
       try {
-        await axios.post('http://localhost:5000/api/views', { 
+        await axios.post('/api/views', { 
           projectId: null, 
           sessionId: sessionId
         });

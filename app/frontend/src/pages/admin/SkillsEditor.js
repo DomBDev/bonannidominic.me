@@ -61,7 +61,7 @@ const SkillsEditor = () => {
 
   const fetchSkills = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/skills');
+      const response = await axios.get('/api/skills');
       setSkills(response.data);
       setLoading(false);
     } catch (err) {
@@ -120,7 +120,7 @@ const SkillsEditor = () => {
 
   const handleSaveSkills = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/skills', skills);
+      const response = await axios.post('/api/skills', skills);
       alert('Skills saved successfully!');
       setHasChanges(false);
       setSkills(response.data); // Update the skills with the returned data
@@ -151,7 +151,7 @@ const SkillsEditor = () => {
 
   const handleSuggestSkills = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/projects/skills');
+      const response = await axios.get('/api/projects/skills');
       const projectSkills = response.data;
       const newSuggestions = projectSkills.filter(
         skill => !skills.some(existingSkill => existingSkill.name.toLowerCase() === skill.toLowerCase())

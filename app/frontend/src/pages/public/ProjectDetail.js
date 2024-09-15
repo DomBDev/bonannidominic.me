@@ -26,7 +26,7 @@ const ProjectDetail = () => {
           sessionId = uuidv4();
           localStorage.setItem('sessionId', sessionId);
         }
-        await axios.post('http://localhost:5000/api/views', { projectId: id, sessionId });
+        await axios.post('/api/views', { projectId: id, sessionId });
       } catch (error) {
         console.error('Error recording project view:', error);
       }
@@ -37,7 +37,7 @@ const ProjectDetail = () => {
 
   const fetchProject = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/projects/${id}`);
+      const response = await axios.get(`/api/projects/${id}`);
       setProject(response.data);
       setLoading(false);
     } catch (error) {

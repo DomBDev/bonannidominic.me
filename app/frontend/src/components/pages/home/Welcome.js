@@ -183,9 +183,9 @@ const Welcome = () => {
     const fetchData = async () => {
       try {
         const [projectsResponse, viewsResponse, skillsResponse] = await Promise.all([
-          axios.get('http://localhost:5000/api/projects'),
-          axios.get('http://localhost:5000/api/views/total'),
-          axios.get('http://localhost:5000/api/skills')
+          axios.get('/api/projects'),
+          axios.get('/api/views/total'),
+          axios.get('/api/skills')
         ]);
         setProjects(projectsResponse.data);
         setTotalViews(viewsResponse.data.totalViews);
