@@ -1,0 +1,26 @@
+### TODO
+
+## Urgent (Phase 0)
+- [ ] Fix the "Want to work together?" button on the homepage.
+
+## Phase 1
+- [ ] Implement a profile editing page for the welcome section.
+- [ ] Fix the creating new projects editor / implement it.
+- [ ] Add a modal to the ProjectDetails page for the media elements.
+- [ ] Fix the public/private repository editing / visibility on projects page.
+- [ ] Add pagination or infinite scrolling for projects list.
+- [ ] Add form autofill for all the forms in the app.
+
+## Phase 2
+- [ ] Implement an image cropping feature for the image uploading.
+- [ ] Add a caption element to the image uploading.
+- [ ] Add a live, interactive JavaScript demo section.
+- [ ] Create a user settings page for customizing the admin experience and editing users.
+- [ ] Implement a comment system for projects.
+- [ ] Create a changelog feature for tracking project updates.
+
+## Phase 3
+- [ ] Implement a blog feature.
+- [ ] Implement a recommendation system for related projects.
+- [ ] Implement a version control system for project revisions.
+- [ ] Implement error handling and user feedback for API requests.
