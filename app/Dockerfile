@@ -19,6 +19,9 @@ WORKDIR /app
 COPY --from=backend-build /app/backend ./backend
 COPY --from=frontend-build /app/frontend/build ./frontend/build
 
+# Create uploads directory and set permissions
+RUN mkdir -p /app/backend/uploads && chmod 755 /app/backend/uploads
+
 WORKDIR /app/backend
 EXPOSE 5000
 CMD ["node", "server.js"]
