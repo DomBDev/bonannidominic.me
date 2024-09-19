@@ -34,13 +34,22 @@ app.use('/api/views', viewRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/auth', authRoutes);
 
-// Update this line
+// Serve uploaded files
 app.use('/uploads', express.static('/app/uploads'));
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   if (process.env.NODE_ENV === 'production') {
-    console.log('Production mode: Frontend serving should be active');
+    console.log('Production mode: Frontend serving is active');
   } else {
     console.log('Not in production mode: Frontend serving is inactive');
   }
