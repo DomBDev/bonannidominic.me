@@ -8,7 +8,7 @@ const auth = require('../middleware/auth');
 // Configure multer for file upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join('/app/backend/uploads');
+    const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -28,9 +28,8 @@ router.post('/', auth, upload.single('file'), (req, res) => {
     return res.status(400).send('No file uploaded.');
   }
 
-  // Construct the URL for the uploaded file
+  // Update the fileUrl to use the /uploads prefix
   const fileUrl = `/uploads/${req.file.filename}`;
-
   res.json({ url: fileUrl });
 });
 

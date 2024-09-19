@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import ProfileSection from '../../components/pages/about/ProfileSection';
 
 const About = () => {
   const [timelineElements, setTimelineElements] = useState([]);
@@ -123,33 +124,6 @@ const About = () => {
     </div>
   );
 };
-
-const ProfileSection = ({ element }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20 p-4 sm:p-8 overflow-y-auto mt-16 sm:mt-20"
-    >
-      <AnimatedPath type="profile" />
-      <AnimatedProfileSVG />
-      <h2 className="text-2xl sm:text-4xl font-bold text-primary mb-2">My Developer Profile</h2>
-      <div className="max-w-3xl text-sm sm:text-md space-y-4">
-        {element.profile && Object.entries(element.profile).map(([title, content], index) => (
-          <Section key={index} title={title} content={content} />
-        ))}
-      </div>
-    </motion.div>
-  );
-};
-
-const Section = ({ title, content }) => (
-  <div>
-    <h3 className="text-xl font-semibold text-primary mb-2">{title}</h3>
-    <p className="text-text">{content}</p>
-  </div>
-);
 
 const FuturePlansSection = ({ element }) => {
   return (

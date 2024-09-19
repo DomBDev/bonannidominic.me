@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { motion } from 'framer-motion';
-import { FaTrash, FaSave, FaUpload, FaPlus } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaTrash, FaSave, FaUpload, FaPlus, FaCheckCircle, FaCalendar, FaGithub, FaExternalLinkAlt, FaTags, FaEye, FaEyeSlash } from 'react-icons/fa';
+import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const ProjectEditor = () => {
   const { id } = useParams();
@@ -11,6 +14,21 @@ const ProjectEditor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState('');
+  const [statuses, setStatuses] = useState([]);
+  const [newStatus, setNewStatus] = useState('');
+  const [showStatusPopover, setShowStatusPopover] = useState(false);
+  const [showCategoryPopover, setShowCategoryPopover] = useState(false);
+  const [showSkillsPopover, setShowSkillsPopover] = useState(false);
+  const [newSkill, setNewSkill] = useState('');
+  const [crop, setCrop] = useState({ aspect: 16 / 9 });
+  const [completedCrop, setCompletedCrop] = useState(null);
+  const imgRef = useRef(null);
+  const previewCanvasRef = useRef(null);
+  const [activeTab, setActiveTab] = useState('details');
+  const [categoryOrder, setCategoryOrder] = useState([]);
+  const [showCategoryOrderEditor, setShowCategoryOrderEditor] = useState(false);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -25,6 +43,9 @@ const ProjectEditor = () => {
   useEffect(() => {
     if (token) {
       fetchProject();
+      fetchCategories();
+      fetchStatuses();
+      fetchCategoryOrder();
     }
   }, [id, token]);
 
@@ -33,7 +54,12 @@ const ProjectEditor = () => {
       const response = await axios.get(`/api/projects/${id}`, {
         headers: { 'x-auth-token': token }
       });
-      setProject(response.data);
+      const projectData = response.data;
+      // Set a default category if it's missing
+      if (!projectData.category && categories.length > 0) {
+        projectData.category = categories[0];
+      }
+      setProject(projectData);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching project:', error);
@@ -43,6 +69,71 @@ const ProjectEditor = () => {
         setError('Failed to load project. Please try again later.');
         setLoading(false);
       }
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('/api/projects/categories', {
+        headers: { 'x-auth-token': token }
+      });
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchStatuses = async () => {
+    try {
+      const response = await axios.get('/api/projects/statuses', {
+        headers: { 'x-auth-token': token }
+      });
+      setStatuses(response.data);
+    } catch (error) {
+      console.error('Error fetching statuses:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error setting up request:', error.message);
+      }
+      setError('Failed to load statuses. Please try again later.');
+    }
+  };
+
+  const fetchCategoryOrder = async () => {
+    try {
+      const response = await axios.get('/api/projects/category-order', {
+        headers: { 'x-auth-token': token }
+      });
+      setCategoryOrder(response.data);
+    } catch (error) {
+      console.error('Error fetching category order:', error);
+    }
+  };
+
+  const handleCategoryOrderChange = async (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(categoryOrder);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setCategoryOrder(items);
+
+    try {
+      await axios.put('/api/projects/category-order', { order: items }, {
+        headers: { 'x-auth-token': token }
+      });
+    } catch (error) {
+      console.error('Error updating category order:', error);
     }
   };
 
@@ -99,7 +190,7 @@ const ProjectEditor = () => {
       updatedMedia[index] = { 
         type: file.type.startsWith('image') ? 'image' : 'video', 
         url: response.data.url,
-        filename: file.name // Store the original filename
+        filename: file.name
       };
 
       setProject(prevProject => ({
@@ -112,7 +203,7 @@ const ProjectEditor = () => {
     }
   };
 
-  const handleImageChange = async (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -124,16 +215,10 @@ const ProjectEditor = () => {
         headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token }
       });
 
-      // Delete the old image if it exists
-      if (project.image && project.image.startsWith('/uploads/')) {
-        await axios.delete(`/api/upload${project.image}`, {
-          headers: { 'x-auth-token': token }
-        });
-      }
-
+      // The URL returned from the server now includes the /uploads prefix
       setProject(prevProject => ({
         ...prevProject,
-        image: response.data.url
+        image: response.data.url // This should now be something like "/uploads/filename.jpg"
       }));
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -160,18 +245,160 @@ const ProjectEditor = () => {
       }
     }
 
+    // Delete the old image if it exists
+    if (project.image && project.image.startsWith('/uploads/')) {
+      await axios.delete(`/api/upload${project.image}`, {
+        headers: { 'x-auth-token': token }
+      });
+    }
+
     setProject(prevProject => ({
       ...prevProject,
       media: prevProject.media.filter((_, i) => i !== index)
     }));
   };
 
+  const handleAddStatus = async () => {
+    if (newStatus.trim()) {
+      try {
+        await axios.post('/api/projects/statuses', { status: newStatus }, {
+          headers: { 'x-auth-token': token }
+        });
+        setStatuses([...statuses, newStatus]);
+        setProject(prevProject => ({
+          ...prevProject,
+          status: newStatus
+        }));
+        setNewStatus('');
+        setShowStatusPopover(false);
+      } catch (error) {
+        console.error('Error adding status:', error);
+      }
+    }
+  };
+
+  const handleAddCategory = async () => {
+    if (newCategory.trim()) {
+      try {
+        await axios.post('/api/projects/categories', { category: newCategory }, {
+          headers: { 'x-auth-token': token }
+        });
+        setCategories([...categories, newCategory]);
+        setProject(prevProject => ({
+          ...prevProject,
+          category: newCategory
+        }));
+        setNewCategory('');
+        setShowCategoryPopover(false);
+      } catch (error) {
+        console.error('Error adding category:', error);
+      }
+    }
+  };
+
+  const handleAddSkill = () => {
+    if (newSkill.trim() && !project.skills.includes(newSkill.trim())) {
+      setProject(prevProject => ({
+        ...prevProject,
+        skills: [...prevProject.skills, newSkill.trim()]
+      }));
+      setNewSkill('');
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove) => {
+    setProject(prevProject => ({
+      ...prevProject,
+      skills: prevProject.skills.filter(skill => skill !== skillToRemove)
+    }));
+  };
+
+  const handleImageLoad = (e) => {
+    const { width, height } = e.currentTarget;
+    setCrop(prevCrop => ({
+      ...prevCrop,
+      unit: '%',
+      width: 100,
+      height: (100 * 9) / 16,
+      x: 0,
+      y: (height - (height * 9) / 16) / 2,
+    }));
+  };
+
+  const handleCompleteCrop = (crop) => {
+    setCompletedCrop(crop);
+    const image = imgRef.current;
+    const canvas = previewCanvasRef.current;
+    if (!crop || !canvas || !image) return;
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = crop.width;
+    canvas.height = crop.height;
+
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width,
+      crop.height
+    );
+  };
+
+  const handleSaveCroppedImage = () => {
+    if (!completedCrop || !previewCanvasRef.current) return;
+
+    previewCanvasRef.current.toBlob(
+      (blob) => {
+        const formData = new FormData();
+        formData.append('file', blob, 'cropped_image.jpg');
+
+        axios.post('/api/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token }
+        })
+        .then(response => {
+          setProject(prevProject => ({
+            ...prevProject,
+            image: response.data.url
+          }));
+        })
+        .catch(error => {
+          console.error('Error uploading cropped image:', error);
+        });
+      },
+      'image/jpeg',
+      1
+    );
+  };
+
+  const handleMediaCaptionChange = (index, caption) => {
+    const updatedMedia = [...project.media];
+    updatedMedia[index].caption = caption;
+    setProject(prevProject => ({
+      ...prevProject,
+      media: updatedMedia
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Ensure category is included and has a value
+      if (!project.category) {
+        setError('Category is required. Please select or add a category.');
+        return;
+      }
+
       await axios.put(`/api/projects/${id}`, {
         ...project,
-        featured: project.featured
+        featured: project.featured,
+        category: project.category // Explicitly include the category
       }, {
         headers: { 'x-auth-token': token }
       });
@@ -182,7 +409,7 @@ const ProjectEditor = () => {
       if (error.response && error.response.status === 401) {
         navigate('/login');
       } else {
-        setError('Failed to update project. Please try again.');
+        setError(`Failed to update project: ${error.response?.data?.message || error.message}`);
       }
     }
   };
@@ -206,6 +433,17 @@ const ProjectEditor = () => {
     }
   };
 
+  const toggleCategoryOrderEditor = () => {
+    setShowCategoryOrderEditor(!showCategoryOrderEditor);
+  };
+
+  const togglePublicStatus = () => {
+    setProject(prevProject => ({
+      ...prevProject,
+      public: !prevProject.public
+    }));
+  };
+
   if (loading) {
     return <div className="text-white text-center pt-32">Loading project details...</div>;
   }
@@ -219,135 +457,327 @@ const ProjectEditor = () => {
   }
 
   return (
-    <div className="pt-16 bg-gradient-to-br from-darkblue via-muted to-darkpurple min-h-screen relative overflow-hidden px-4 sm:px-6 lg:px-8">
+    <div className="pt-32 bg-gradient-to-br from-darkblue via-muted to-darkpurple min-h-screen relative overflow-hidden px-4 sm:px-6 lg:px-8">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="max-w-4xl mx-auto bg-muted rounded-xl shadow-lg overflow-hidden"
       >
         <form onSubmit={handleSubmit} className="p-8">
-          <h1 className="text-4xl font-bold text-primary mb-8">Edit Project: {project.title}</h1>
+          <h1 className="text-4xl font-bold text-primary mb-4">
+            <InputField
+              name="title"
+              value={project.title}
+              onChange={handleInputChange}
+              className="w-full text-4xl font-bold bg-transparent border-none focus:outline-none focus:ring-0"
+            />
+          </h1>
+          <TextAreaField
+            name="description"
+            value={project.description}
+            onChange={handleInputChange}
+            className="text-xl text-text mb-6 w-full bg-transparent border-none focus:outline-none focus:ring-0"
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <InputField label="Title" name="title" value={project.title} onChange={handleInputChange} />
-              <TextAreaField label="Description" name="description" value={project.description} onChange={handleInputChange} />
-              <TextAreaField label="Details" name="details" value={project.details} onChange={handleInputChange} rows={5} />
-              <InputField label="Timeline" name="timeline" value={project.timeline} onChange={handleInputChange} />
-            </div>
-            <div className="space-y-6">
-              <InputField label="Skills (comma-separated)" name="skills" value={project.skills.join(', ')} onChange={handleSkillsChange} />
-              <TextAreaField label="What I Learned" name="learned" value={project.learned} onChange={handleInputChange} />
-              <SelectField label="Status" name="status" value={project.status} onChange={handleInputChange} options={['completed', 'wip', 'planned']} />
-              <InputField label="GitHub URL" name="github" value={project.github} onChange={handleInputChange} />
-              <InputField label="Live Demo URL" name="live" value={project.live} onChange={handleInputChange} />
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <h2 className="text-2xl font-semibold text-primary mb-4">Main Image</h2>
-            <div className="bg-background p-6 rounded-lg shadow-md">
-              <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
-                <div className="flex-grow">
-                  <input
-                    type="text"
-                    value={project.image || ''}
-                    onChange={(e) => setProject(prev => ({ ...prev, image: e.target.value }))}
-                    placeholder="Image URL"
-                    className="w-full rounded-md bg-muted text-text border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 px-4 py-2"
-                  />
-                </div>
-                <label className="cursor-pointer bg-secondary text-text px-4 py-2 rounded-md hover:bg-primary transition duration-300 flex items-center justify-center">
-                  <FaUpload className="mr-2" />
-                  <span>Upload Image</span>
-                  <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div>
+              <div className="relative">
+                <img
+                  src={project.image || 'placeholder-image-url'}
+                  alt={project.title}
+                  className="w-full h-64 object-cover rounded-lg shadow-md"
+                />
+                <label className="absolute bottom-2 left-2 cursor-pointer bg-primary text-text px-3 py-1 rounded-md hover:bg-secondary transition duration-300">
+                  <FaUpload className="inline-block mr-2" />
+                  <span>Change Image</span>
+                  <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
                 </label>
               </div>
-              {project.image && (
-                <div className="mt-4">
-                  <img 
-                    src={project.image} 
-                    alt="Project thumbnail" 
-                    className="w-full h-64 object-cover rounded-md shadow-md"
-                  />
-                </div>
-              )}
             </div>
-          </div>
-
-          <div className="mt-8">
-            <h2 className="text-2xl font-semibold text-primary mb-4">Media</h2>
-            <div className="flex flex-wrap gap-4">
-              {project.media.map((item, index) => (
-                <div key={index} className="bg-background p-4 rounded-lg shadow-md">
-                  <select
-                    value={item.type}
-                    onChange={(e) => handleMediaChange(index, 'type', e.target.value)}
-                    className="w-full mb-2 rounded-md bg-muted text-text border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                  >
-                    <option value="image">Image</option>
-                    <option value="video">Video</option>
-                  </select>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <input
-                      type="text"
-                      value={item.url}
-                      onChange={(e) => handleMediaChange(index, 'url', e.target.value)}
-                      placeholder="Media URL"
-                      className="flex-grow rounded-md bg-muted text-text border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+            <div className="flex flex-col justify-between">
+              <div className="grid grid-cols-1 gap-4">
+                <motion.div 
+                  className="flex items-center p-2 rounded-lg"
+                  whileHover={{ y: -5, boxShadow: "0 5px 15px rgba(0,0,0,0.3)" }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <FaCalendar className="text-primary text-3xl mr-3" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary">Timeline</h3>
+                    <InputField
+                      name="timeline"
+                      value={project.timeline}
+                      onChange={handleInputChange}
+                      className="text-text bg-transparent border-none focus:outline-none focus:ring-0"
                     />
-                    <label className="cursor-pointer bg-secondary text-text p-2 rounded-md hover:bg-primary transition duration-300">
-                      <FaUpload />
-                      <input type="file" className="hidden" onChange={(e) => handleMediaUpload(e, index)} accept="image/*,video/*" />
-                    </label>
+                  </div>
+                </motion.div>
+                <motion.div 
+                  className="flex items-center p-2 rounded-lg"
+                  whileHover={{ y: -5, boxShadow: "0 5px 15px rgba(0,0,0,0.3)" }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <FaCheckCircle className="text-primary text-3xl mr-3" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary">Status</h3>
+                    <div className="relative">
+                      <SelectField
+                        name="status"
+                        value={project.status}
+                        onChange={handleInputChange}
+                        options={statuses}
+                        className="text-text capitalize bg-transparent border-none focus:outline-none focus:ring-0"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowStatusPopover(true)}
+                        className="absolute right-0 top-0 text-primary hover:text-secondary"
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+                <motion.div 
+                  className="flex items-center p-2 rounded-lg"
+                  whileHover={{ y: -5, boxShadow: "0 5px 15px rgba(0,0,0,0.3)" }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <FaTags className="text-primary text-3xl mr-3" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary">Category</h3>
+                    <div className="relative">
+                      <SelectField
+                        name="category"
+                        value={project.category}
+                        onChange={handleInputChange}
+                        options={categories}
+                        className="text-text capitalize bg-transparent border-none focus:outline-none focus:ring-0"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCategoryPopover(true)}
+                        className="absolute right-0 top-0 text-primary hover:text-secondary"
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => removeMediaItem(index)}
-                      className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition duration-300"
+                      onClick={toggleCategoryOrderEditor}
+                      className="mt-2 text-primary hover:text-secondary text-sm"
                     >
-                      <FaTrash />
+                      Edit Category Order
                     </button>
                   </div>
-                  {item.filename && (
-                    <p className="text-sm text-gray-500 truncate">{item.filename}</p>
-                  )}
-                  {item.url && (
-                    <div className="mt-2">
-                      {item.type === 'image' ? (
-                        <img src={item.url} alt="Uploaded media" className="w-full h-32 object-cover rounded-md" />
-                      ) : (
-                        <video src={item.url} className="w-full h-32 object-cover rounded-md" controls />
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
+                </motion.div>
+              </div>
+              <div className="flex justify-between items-center mt-4">
+                <InputField
+                  name="github"
+                  value={project.github}
+                  onChange={handleInputChange}
+                  placeholder="GitHub URL"
+                  className="bg-primary text-text px-6 py-2 rounded-lg"
+                />
+                <InputField
+                  name="live"
+                  value={project.live}
+                  onChange={handleInputChange}
+                  placeholder="Live Demo URL"
+                  className="bg-primary text-text px-6 py-2 rounded-lg"
+                />
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={addMediaItem}
-              className="mt-4 bg-secondary text-text px-4 py-2 rounded-md hover:bg-primary transition duration-300 flex items-center space-x-2"
-            >
-              <FaPlus />
-              <span>Add Media Item</span>
-            </button>
           </div>
 
-          <div className="mt-8 mb-4">
-            <div className="flex items-center space-x-3">
-              <label htmlFor="featured" className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  checked={project.featured}
-                  onChange={(e) => setProject(prev => ({ ...prev, featured: e.target.checked }))}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-gray-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                <span className="ml-3 text-sm font-medium text-gray-300">Featured Project</span>
-              </label>
+          <div className="mb-8">
+            <div className="flex border-b border-gray-600">
+              {['details', 'skills', 'learned', 'media'].map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`px-4 py-2 ${activeTab === tab ? 'text-primary border-b-2 border-primary' : 'text-text'}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
             </div>
+            <div className="mt-4">
+              <AnimatePresence mode="wait">
+                {activeTab === 'details' && (
+                  <motion.div
+                    key="details"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h2 className="text-2xl font-semibold text-primary mb-4">Project Details</h2>
+                    <TextAreaField
+                      name="details"
+                      value={project.details}
+                      onChange={handleInputChange}
+                      className="text-text w-full bg-transparent border-none focus:outline-none focus:ring-0"
+                      rows={5}
+                    />
+                  </motion.div>
+                )}
+                {activeTab === 'skills' && (
+                  <motion.div
+                    key="skills"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h2 className="text-2xl font-semibold text-primary mb-4">Skills Used</h2>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {project.skills.map((skill, index) => (
+                        <div key={index} className="bg-secondary text-text px-3 py-1 rounded-full text-sm flex items-center">
+                          {skill}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSkill(skill)}
+                            className="ml-2 text-red-500 hover:text-red-700"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center">
+                      <InputField
+                        value={newSkill}
+                        onChange={(e) => setNewSkill(e.target.value)}
+                        placeholder="Add a new skill"
+                        className="text-text bg-transparent border-none focus:outline-none focus:ring-0 flex-grow"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddSkill}
+                        className="ml-2 bg-primary text-text px-3 py-1 rounded-md hover:bg-secondary transition duration-300"
+                      >
+                        Add Skill
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+                {activeTab === 'learned' && (
+                  <motion.div
+                    key="learned"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h2 className="text-2xl font-semibold text-primary mb-4">What I Learned</h2>
+                    <TextAreaField
+                      name="learned"
+                      value={project.learned}
+                      onChange={handleInputChange}
+                      className="text-text w-full bg-transparent border-none focus:outline-none focus:ring-0"
+                      rows={5}
+                    />
+                  </motion.div>
+                )}
+                {activeTab === 'media' && (
+                  <motion.div
+                    key="media"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h2 className="text-2xl font-semibold text-primary mb-4">Project Media</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {project.media.map((item, index) => (
+                        <div key={index} className="bg-background rounded-lg overflow-hidden shadow-md">
+                          {item.type === 'image' ? (
+                            <img src={item.url} alt={`Project media ${index + 1}`} className="w-full h-48 object-cover" />
+                          ) : (
+                            <video src={item.url} controls className="w-full h-48 object-cover">
+                              Your browser does not support the video tag.
+                            </video>
+                          )}
+                          <div className="p-2">
+                            <SelectField
+                              value={item.type}
+                              onChange={(e) => handleMediaChange(index, 'type', e.target.value)}
+                              options={['image', 'video']}
+                              className="mb-2 w-full bg-transparent border-none focus:outline-none focus:ring-0"
+                            />
+                            <InputField
+                              value={item.url}
+                              onChange={(e) => handleMediaChange(index, 'url', e.target.value)}
+                              placeholder="Media URL"
+                              className="w-full bg-transparent border-none focus:outline-none focus:ring-0"
+                            />
+                            <InputField
+                              value={item.caption || ''}
+                              onChange={(e) => handleMediaCaptionChange(index, e.target.value)}
+                              placeholder="Caption"
+                              className="w-full bg-transparent border-none focus:outline-none focus:ring-0 mt-2"
+                            />
+                            <div className="flex justify-between mt-2">
+                              <label className="cursor-pointer bg-secondary text-text px-3 py-1 rounded-md hover:bg-primary transition duration-300">
+                                <FaUpload className="inline-block mr-2" />
+                                <span>Upload</span>
+                                <input type="file" className="hidden" onChange={(e) => handleMediaUpload(e, index)} accept="image/*,video/*" />
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => removeMediaItem(index)}
+                                className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition duration-300"
+                              >
+                                <FaTrash className="inline-block mr-2" />
+                                <span>Remove</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addMediaItem}
+                      className="mt-4 bg-secondary text-text px-4 py-2 rounded-md hover:bg-primary transition duration-300 flex items-center space-x-2"
+                    >
+                      <FaPlus />
+                      <span>Add Media Item</span>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Public/Private Toggle */}
+          <div className="mt-6 flex items-center">
+            <span className="mr-4 text-text">Project Visibility:</span>
+            <button
+              type="button"
+              onClick={togglePublicStatus}
+              className={`flex items-center px-4 py-2 rounded-full transition-colors duration-300 ${
+                project.public
+                  ? 'bg-green-500 hover:bg-green-600'
+                  : 'bg-red-500 hover:bg-red-600'
+              }`}
+            >
+              {project.public ? (
+                <>
+                  <FaEye className="mr-2" />
+                  <span>Public</span>
+                </>
+              ) : (
+                <>
+                  <FaEyeSlash className="mr-2" />
+                  <span>Private</span>
+                </>
+              )}
+            </button>
           </div>
 
           <div className="mt-8 flex justify-between">
@@ -373,6 +803,129 @@ const ProjectEditor = () => {
           </div>
         </form>
       </motion.div>
+
+      {/* Status Popover */}
+      <AnimatePresence>
+        {showStatusPopover && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+          >
+            <div className="bg-muted rounded-lg p-6 w-96 shadow-xl">
+              <h3 className="text-2xl font-semibold text-primary mb-4">Add New Status</h3>
+              <InputField
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                placeholder="Enter new status"
+                className="w-full mb-4 bg-background text-text"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowStatusPopover(false)}
+                  className="mr-2 px-4 py-2 text-text hover:text-primary transition duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddStatus}
+                  className="px-4 py-2 bg-primary text-text rounded-lg hover:bg-secondary transition duration-300"
+                >
+                  Add Status
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Category Popover */}
+      <AnimatePresence>
+        {showCategoryPopover && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+          >
+            <div className="bg-muted rounded-lg p-6 w-96 shadow-xl">
+              <h3 className="text-2xl font-semibold text-primary mb-4">Add New Category</h3>
+              <InputField
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="Enter new category"
+                className="w-full mb-4 bg-background text-text"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryPopover(false)}
+                  className="mr-2 px-4 py-2 text-text hover:text-primary transition duration-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddCategory}
+                  className="px-4 py-2 bg-primary text-text rounded-lg hover:bg-secondary transition duration-300"
+                >
+                  Add Category
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Category Order Editor */}
+      <AnimatePresence>
+        {showCategoryOrderEditor && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+          >
+            <div className="bg-muted rounded-lg p-6 w-96 shadow-xl">
+              <h3 className="text-2xl font-semibold text-primary mb-4">Edit Category Order</h3>
+              <DragDropContext onDragEnd={handleCategoryOrderChange}>
+                <Droppable droppableId="categories">
+                  {(provided) => (
+                    <ul {...provided.droppableProps} ref={provided.innerRef}>
+                      {categoryOrder.map((category, index) => (
+                        <Draggable key={category} draggableId={category} index={index}>
+                          {(provided) => (
+                            <li
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="bg-background text-text p-2 mb-2 rounded-md"
+                            >
+                              {category}
+                            </li>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </ul>
+                  )}
+                </Droppable>
+              </DragDropContext>
+              <div className="flex justify-end mt-4">
+                <button
+                  onClick={() => setShowCategoryOrderEditor(false)}
+                  className="px-4 py-2 bg-primary text-text rounded-lg hover:bg-secondary transition duration-300"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

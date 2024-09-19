@@ -34,8 +34,8 @@ app.use('/api/views', viewRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/auth', authRoutes);
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Update the path to serve static files
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // Update the frontend build path
 const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'build');

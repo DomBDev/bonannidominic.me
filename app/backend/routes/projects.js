@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Project = require('../models/Project');
+const { Project, CategoryOrder } = require('../models/Project');
 const fs = require('fs');
 const path = require('path');
 const auth = require('../middleware/auth');
@@ -61,58 +61,92 @@ router.get('/skills', async (req, res) => {
   }
 });
 
-// Get a project
-router.get('/:id', async (req, res) => {
+// Get all unique categories
+router.get('/categories', async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Project not found' });
+    const categories = await Project.distinct('category');
+    res.json(categories);
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
-    res.json(project);
+// Add a new category
+router.post('/categories', auth, async (req, res) => {
+  try {
+    const { category } = req.body;
+    if (!category) {
+      return res.status(400).json({ message: 'Category is required' });
+    }
+    const existingCategory = await Project.findOne({ category });
+    if (existingCategory) {
+      return res.status(400).json({ message: 'Category already exists' });
+    }
+    // We don't need to create a new project here, just return success
+    res.status(201).json({ message: 'Category added successfully' });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Get category order
+router.get('/category-order', async (req, res) => {
+  try {
+    let categoryOrder = await CategoryOrder.findOne();
+    if (!categoryOrder) {
+      const categories = await Project.distinct('category');
+      categoryOrder = new CategoryOrder({ order: categories });
+      await categoryOrder.save();
+    }
+    res.json(categoryOrder.order);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Update a project
-router.put('/:id', auth, async (req, res) => {
+// Update category order
+router.put('/category-order', auth, async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
-    if (!project) return res.status(404).json({ message: 'Project not found' });
-
-    // Handle partial updates
-    Object.keys(req.body).forEach(key => {
-      if (req.body[key] !== undefined) {
-        project[key] = req.body[key];
-      }
-    });
-
-    // Special handling for image and media if needed
-    if (req.body.image && project.image !== req.body.image) {
-      // Delete the old image if it's a local file
-      if (project.image.startsWith('/uploads/')) {
-        const imagePath = path.join(__dirname, '..', 'public', project.image);
-        fs.unlink(imagePath, (err) => {
-          if (err) console.error('Error deleting project image:', err);
-        });
-      }
+    const { order } = req.body;
+    let categoryOrder = await CategoryOrder.findOne();
+    if (!categoryOrder) {
+      categoryOrder = new CategoryOrder({ order });
+    } else {
+      categoryOrder.order = order;
     }
-
-    if (req.body.media) {
-      // Handle media updates logic here
-      project.media.forEach(item => {
-        if (item.url.startsWith('/uploads/')) {
-          const filePath = path.join(__dirname, '..', 'public', item.url);
-          fs.unlink(filePath, (err) => {
-            if (err) console.error('Error deleting media file:', err);
-          });
-        }
-      });
-    }
-
-    const updatedProject = await project.save();
-    res.json(updatedProject);
+    await categoryOrder.save();
+    res.json(categoryOrder.order);
   } catch (err) {
-    console.error('Error updating project:', err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Get all unique statuses
+router.get('/statuses', async (req, res) => {
+  try {
+    const statuses = await Project.distinct('status');
+    res.json(statuses);
+  } catch (err) {
+    console.error('Error fetching statuses:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Add a new status
+router.post('/statuses', auth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ message: 'Status is required' });
+    }
+    const existingStatus = await Project.findOne({ status });
+    if (existingStatus) {
+      return res.status(400).json({ message: 'Status already exists' });
+    }
+    // We don't need to create a new project here, just return success
+    res.status(201).json({ message: 'Status added successfully' });
+  } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
@@ -153,6 +187,67 @@ router.delete('/:id', auth, async (req, res) => {
   } catch (err) {
     console.error('Error deleting project:', err);
     res.status(500).json({ message: 'Error deleting project', error: err.message });
+  }
+});
+
+// Get a project
+router.get('/:id', async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    res.json(project);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update a project
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    // Handle partial updates
+    Object.keys(req.body).forEach(key => {
+      if (req.body[key] !== undefined) {
+        project[key] = req.body[key];
+      }
+    });
+
+    // Special handling for public/private toggle
+    if (req.body.public !== undefined) {
+      project.public = req.body.public;
+    }
+
+    // Special handling for image and media if needed
+    if (req.body.image && project.image !== req.body.image) {
+      // Delete the old image if it's a local file
+      if (project.image.startsWith('/uploads/')) {
+        const imagePath = path.join(__dirname, '..', 'public', project.image);
+        fs.unlink(imagePath, (err) => {
+          if (err) console.error('Error deleting project image:', err);
+        });
+      }
+    }
+
+    if (req.body.media) {
+      // Handle media updates logic here
+      project.media.forEach(item => {
+        if (item.url.startsWith('/uploads/')) {
+          const filePath = path.join(__dirname, '..', 'public', item.url);
+          fs.unlink(filePath, (err) => {
+            if (err) console.error('Error deleting media file:', err);
+          });
+        }
+      });
+    }
+
+    const updatedProject = await project.save();
+    res.json(updatedProject);
+  } catch (err) {
+    console.error('Error updating project:', err);
+    res.status(400).json({ message: err.message });
   }
 });
 

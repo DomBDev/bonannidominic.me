@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const frameRate = 30;
 const frameDelay = 1000 / frameRate;
@@ -7,6 +7,7 @@ const speedFactor = 0.001;
 const BackgroundAnimation = () => {
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -20,19 +21,33 @@ const BackgroundAnimation = () => {
     };
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+      setDimensions({ width: newWidth, height: newHeight });
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+
+      // Update particle positions
+      particlesArray.forEach(particle => {
+        if (particle.x > newWidth) particle.x = newWidth;
+        if (particle.y > newHeight) particle.y = newHeight;
+      });
     };
 
     const handleMouseMove = (event) => {
-      mouse.x = event.x + window.scrollX;
-      mouse.y = event.y + window.scrollY;
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = event.clientX - rect.left;
+      mouse.y = event.clientY - rect.top;
     };
 
     resizeCanvas();
 
     window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mousemove', handleMouseMove);
+
+    // Create a ResizeObserver to watch for content changes
+    const resizeObserver = new ResizeObserver(resizeCanvas);
+    resizeObserver.observe(document.body);
 
     class Particle {
       constructor(x, y, isMouse = false) {
@@ -113,6 +128,7 @@ const BackgroundAnimation = () => {
     }
 
     function init() {
+      particlesArray.length = 0; // Clear existing particles
       for (let i = 0; i < numberOfParticles; i++) {
         particlesArray.push(new Particle());
       }
@@ -126,7 +142,7 @@ const BackgroundAnimation = () => {
         particle.draw();
       });
       connect(particlesArray);
-      animationRef.current = setTimeout(animate, frameDelay);
+      animationRef.current = requestAnimationFrame(animate);
     }
 
     function connect(particlesArray) {
@@ -178,14 +194,20 @@ const BackgroundAnimation = () => {
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      window.removeEventListener('mousemove', handleMouseMove);
-      clearTimeout(animationRef.current);
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      resizeObserver.disconnect();
+      cancelAnimationFrame(animationRef.current);
     };
   }, []);
 
   return (
-    <div className="absolute top-0 left-0 w-full h-full z-1" style={{ filter: 'blur(2px)' }}>
-      <canvas ref={canvasRef} className="w-full h-full" />
+    <div className="fixed top-0 left-0 w-full h-full z-1" style={{ filter: 'blur(2px)', pointerEvents: 'none' }}>
+      <canvas 
+        ref={canvasRef} 
+        width={dimensions.width}
+        height={dimensions.height}
+        style={{ width: '100%', height: '100%' }}
+      />
     </div>
   );
 };

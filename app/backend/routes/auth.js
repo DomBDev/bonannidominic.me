@@ -38,27 +38,13 @@ router.post('/check-token', async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Check if token is close to expiration (e.g., less than 5 minutes left)
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (decoded.exp - currentTime < 300) {
-      // Token is close to expiration, refresh it
-      const user = await User.findById(decoded.userId);
-      if (!user) {
-        return res.json({ isValid: false });
-      }
-
-      const refreshedToken = jwt.sign(
-        { userId: user._id },
-        process.env.JWT_SECRET,
-        { expiresIn: '15m' }
-      );
-
-      return res.json({ isValid: true, refreshedToken });
-    }
-
-    // Token is valid and not close to expiration
+    // Token is valid
     return res.json({ isValid: true });
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      // Token is expired, client should use refresh token
+      return res.json({ isValid: false, needsRefresh: true });
+    }
     // Token is invalid
     return res.json({ isValid: false });
   }

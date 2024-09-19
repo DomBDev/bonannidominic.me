@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaPlus, FaEdit, FaTrash, FaSort, FaGithub, FaExternalLinkAlt, FaToggleOn, FaToggleOff, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const ProjectManagement = () => {
   const [projects, setProjects] = useState([]);
@@ -11,6 +12,8 @@ const ProjectManagement = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const [isExpanded, setIsExpanded] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -19,6 +22,17 @@ const ProjectManagement = () => {
       axios.defaults.headers.common['x-auth-token'] = storedToken;
     }
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('/api/projects/categories', {
+        headers: { 'x-auth-token': token }
+      });
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -41,10 +55,54 @@ const ProjectManagement = () => {
   }, [token]);
 
   useEffect(() => {
-    if (isExpanded && token) {
+    if (token) {
+      fetchProjects();
+      fetchCategories();
+    }
+  }, [token, fetchProjects]);
+
+  const handleAddNewProject = async () => {
+    try {
+      const defaultProject = {
+        title: 'New Project',
+        description: 'Project description',
+        details: 'Project details',
+        timeline: 'Project timeline',
+        skills: [],
+        learned: 'What I learned',
+        status: 'planning',
+        image: '',
+        public: false,
+        media: [],
+        github: '',
+        live: '',
+        featured: false,
+        category: categories.length > 0 ? categories[0] : 'Uncategorized'
+      };
+
+      const response = await axios.post('/api/projects', defaultProject, {
+        headers: { 'x-auth-token': token }
+      });
+
+      console.log('New project response:', response);
+
+      const newProjects = response.data;
+      if (Array.isArray(newProjects) && newProjects.length > 0 && newProjects[0]._id) {
+        navigate(`/admin/projects/${newProjects[0]._id}`);
+      } else {
+        console.error('Unexpected response format:', newProjects);
+        throw new Error('New project created, but response format is unexpected');
+      }
+    } catch (error) {
+      console.error('Error creating new project:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
+      alert('Project created, but there was an issue navigating to the edit page. Please check the project list.');
+      // Refresh the project list
       fetchProjects();
     }
-  }, [isExpanded, token, fetchProjects]);
+  };
 
   const handleDeleteProject = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
@@ -125,9 +183,12 @@ const ProjectManagement = () => {
             ) : (
               <>
                 <div className="mb-4">
-                  <Link to="/admin/projects/new" className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition duration-300 flex items-center inline-flex">
+                  <button
+                    onClick={handleAddNewProject}
+                    className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition duration-300 flex items-center inline-flex"
+                  >
                     <FaPlus className="mr-2" /> Add New Project
-                  </Link>
+                  </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
@@ -135,6 +196,9 @@ const ProjectManagement = () => {
                       <tr className="bg-darkpurple">
                         <th className="p-3 cursor-pointer" onClick={() => sortProjects('title')}>
                           Title <FaSort className="inline ml-1" />
+                        </th>
+                        <th className="p-3 cursor-pointer" onClick={() => sortProjects('category')}>
+                          Category <FaSort className="inline ml-1" />
                         </th>
                         <th className="p-3 cursor-pointer" onClick={() => sortProjects('status')}>
                           Status <FaSort className="inline ml-1" />
@@ -153,15 +217,16 @@ const ProjectManagement = () => {
                         <tr key={project._id} className="border-b border-gray-700">
                           <td className="p-3">{project.title}</td>
                           <td className="p-3">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              project.status === 'completed' ? 'bg-green-500' :
-                              project.status === 'wip' ? 'bg-yellow-500' :
-                              'bg-blue-500'
-                            }`}>
+                            {project.category}
+                          </td>
+                          <td className="p-3">
+                            <span className="px-2 py-1 rounded-full text-xs bg-blue-500">
                               {project.status}
                             </span>
                           </td>
-                          <td className="p-3">{project.views || 0}</td>
+                          <td className="p-3">
+                            {project.views || 0}
+                          </td>
                           <td className="p-3">
                             {project.github ? (
                               <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-secondary">

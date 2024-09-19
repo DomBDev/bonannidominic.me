@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaGlobe, FaLock } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 
-const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
+const ProjectSection = ({ category, projects, defaultOpen }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const location = useLocation();
 
@@ -22,7 +22,7 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
           onClick={toggleDropdown}
         >
           <div className="flex items-center w-full h-16 sm:h-24 justify-between max-w-7xl mx-auto px-2 sm:px-4">
-            <h2 className="text-xl sm:text-3xl font-bold text-primary">{sectionTitle}</h2>
+            <h2 className="text-xl sm:text-3xl font-bold text-primary">{category}</h2>
             <div
               className={`ml-2 sm:ml-4 text-primary text-xl sm:text-2xl transform transition-transform duration-300 ${
                 isOpen ? 'rotate-90' : ''
@@ -74,6 +74,9 @@ const ProjectSection = ({ sectionTitle, projects, defaultOpen }) => {
                           </span>
                         )}
                       </div>
+                      <span className="mt-2 inline-block bg-secondary text-text px-2 py-1 rounded-full text-xs sm:text-sm">
+                        {project.status}
+                      </span>
                     </div>
                     <div className="mt-4 sm:mt-0 sm:ml-4 text-primary text-2xl flex items-center relative">
                       <div className="group relative cursor-pointer">

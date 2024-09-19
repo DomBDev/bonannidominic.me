@@ -38,15 +38,17 @@ axios.interceptors.response.use(
           refreshToken: localStorage.getItem('refreshToken')
         })
           .then(({ data }) => {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('refreshToken', data.refreshToken);
-            axios.defaults.headers.common['x-auth-token'] = data.token;
-            originalRequest.headers['x-auth-token'] = data.token;
-            processQueue(null, data.token);
+            localStorage.setItem('token', data.accessToken);
+            axios.defaults.headers.common['x-auth-token'] = data.accessToken;
+            originalRequest.headers['x-auth-token'] = data.accessToken;
+            processQueue(null, data.accessToken);
             resolve(axios(originalRequest));
           })
           .catch((err) => {
             processQueue(err, null);
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            window.location.href = '/login';
             reject(err);
           })
           .finally(() => {

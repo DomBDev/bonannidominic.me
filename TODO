@@ -16,6 +16,7 @@
 - [ ] Implement an image cropping feature for the image uploading.
 - [ ] Add a caption element to the image uploading.
 - [ ] Add a live, interactive JavaScript demo section.
+- [ ] Add archived projects with a filter that is disabled by default, so you have to click on a button to see them. Implement back end for it.
 - [ ] Create a user settings page for customizing the admin experience and editing users.
 - [ ] Implement a comment system for projects.
 - [ ] Create a changelog feature for tracking project updates.

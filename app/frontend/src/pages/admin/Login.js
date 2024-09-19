@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { setAuthToken } from '../../hooks/tokenRefresh';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,8 +17,8 @@ const Login = () => {
       const response = await axios.post('/api/users/login', { email, password });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('refreshToken', response.data.refreshToken);
+      setAuthToken(response.data.token);
       navigate('/admin/dashboard');
-      window.location.reload(); // Force a reload to update the header
     } catch (err) {
       setError('Invalid email or password');
     }

@@ -4,6 +4,8 @@ import axios from 'axios';
 
 import BackgroundAnimation from '../../components/pages/projects/BackgroundAnimation';
 import ProjectSection from '../../components/pages/projects/ProjectSection';
+import ProjectDemo from '../../components/pages/projects/ProjectDemo';
+import DemoSection from '../../components/pages/projects/DemoSection';
 
 const ProjectsHeader = () => {
   return (
@@ -48,32 +50,40 @@ const ProjectsHeader = () => {
 };
 
 const Projects = () => {
+  const [categories, setCategories] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [categoryOrder, setCategoryOrder] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [demoProjects, setDemoProjects] = useState([]);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('/api/projects');
-        setProjects(response.data);
-        setLoading(false);
+        const [categoriesRes, projectsRes, orderRes] = await Promise.all([
+          axios.get('/api/projects/categories'),
+          axios.get('/api/projects'),
+          axios.get('/api/projects/category-order')
+        ]);
+
+        setCategories(categoriesRes.data);
+        setProjects(projectsRes.data);
+        setCategoryOrder(orderRes.data);
       } catch (error) {
-        console.error('Error fetching projects:', error);
-        setError('Failed to load projects. Please try again later.');
+        console.error('Error fetching data:', error);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchProjects();
+    fetchData();
   }, []);
 
-  if (loading) {
-    return <div className="text-white text-center pt-16 sm:pt-32">Loading projects...</div>;
-  }
+  const orderedCategories = categoryOrder.length > 0
+    ? categoryOrder.filter(category => categories.includes(category))
+    : categories;
 
-  if (error) {
-    return <div className="text-white text-center pt-16 sm:pt-32">{error}</div>;
+  if (loading) {
+    return <div className="text-white text-center pt-32">Loading projects...</div>;
   }
 
   return (
@@ -82,21 +92,17 @@ const Projects = () => {
       <BackgroundAnimation />
       <ProjectsHeader />
 
-      <ProjectSection
-        sectionTitle="Completed Projects"
-        projects={projects.filter((project) => project.status === 'completed')}
-        defaultOpen={true}
-      />
-      <ProjectSection
-        sectionTitle="Work In Progress"
-        projects={projects.filter((project) => project.status === 'wip')}
-        defaultOpen={false}
-      />
-      <ProjectSection
-        sectionTitle="Planned Projects"
-        projects={projects.filter((project) => project.status === 'planned')}
-        defaultOpen={false}
-      />
+      {orderedCategories.map((category, index) => (
+        <ProjectSection
+          key={category}
+          category={category}
+          projects={projects.filter(project => project.category === category)}
+          defaultOpen={index === 0}
+        />
+      ))}
+
+      {/* New Demo Section */}
+      <DemoSection demoProjects={demoProjects} />
     </div>
   );
 };
