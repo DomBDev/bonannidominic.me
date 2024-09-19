@@ -8,7 +8,7 @@ const auth = require('../middleware/auth');
 // Configure multer for file upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
+    const uploadDir = '/app/uploads';
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -31,6 +31,24 @@ router.post('/', auth, upload.single('file'), (req, res) => {
   // Update the fileUrl to use the /uploads prefix
   const fileUrl = `/uploads/${req.file.filename}`;
   res.json({ url: fileUrl });
+});
+
+// Handle file deletion
+router.delete('/:filename', auth, (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join('/app/uploads', filename);
+
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        console.log('File does not exist, skipping deletion');
+        return res.json({ message: 'File not found, no action taken' });
+      }
+      console.error('Error deleting file:', err);
+      return res.status(500).json({ message: 'Error deleting file' });
+    }
+    res.json({ message: 'File deleted successfully' });
+  });
 });
 
 module.exports = router;

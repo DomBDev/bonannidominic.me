@@ -16,7 +16,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB connection error:', err));
 
-// Routes
+// API Routes
 const projectRoutes = require('./routes/projects');
 const userRoutes = require('./routes/users');
 const skillRoutes = require('./routes/skills');
@@ -34,26 +34,8 @@ app.use('/api/views', viewRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/auth', authRoutes);
 
-// Update the path to serve static files
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-
-// Update the frontend build path
-const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'build');
-console.log('Frontend build path:', frontendBuildPath);
-
-// Serve static files from the React frontend app
-app.use(express.static(frontendBuildPath));
-
-// Anything that doesn't match the above, send back index.html
-app.get('*', (req, res) => {
-  const indexPath = path.join(frontendBuildPath, 'index.html');
-  console.log('Attempting to serve:', indexPath);
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).send('Frontend build not found');
-  }
-});
+// Update this line
+app.use('/uploads', express.static('/app/uploads'));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

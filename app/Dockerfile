@@ -19,8 +19,11 @@ WORKDIR /app
 COPY --from=backend-build /app/backend ./backend
 COPY --from=frontend-build /app/frontend/build ./frontend/build
 
+# Create a shared volume for uploads
+VOLUME /app/uploads
+
 # Create uploads directory and set permissions
-RUN mkdir -p /app/backend/uploads && chmod 755 /app/backend/uploads
+RUN mkdir -p /app/uploads && chmod 755 /app/uploads
 
 WORKDIR /app/backend
 EXPOSE 5000

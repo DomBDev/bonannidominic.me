@@ -161,7 +161,7 @@ router.delete('/:id', auth, async (req, res) => {
 
     // Delete associated image and media files
     if (project.image && project.image.startsWith('/uploads/')) {
-      const imagePath = path.join(__dirname, '..', 'public', project.image);
+      const imagePath = path.join('/app/uploads', project.image.replace('/uploads/', ''));
       fs.unlink(imagePath, (err) => {
         if (err) console.error('Error deleting project image:', err);
       });
@@ -169,7 +169,7 @@ router.delete('/:id', auth, async (req, res) => {
 
     project.media.forEach(item => {
       if (item.url.startsWith('/uploads/')) {
-        const filePath = path.join(__dirname, '..', 'public', item.url);
+        const filePath = path.join('/app/uploads', item.url.replace('/uploads/', ''));
         fs.unlink(filePath, (err) => {
           if (err) console.error('Error deleting media file:', err);
         });
@@ -224,7 +224,7 @@ router.put('/:id', auth, async (req, res) => {
     if (req.body.image && project.image !== req.body.image) {
       // Delete the old image if it's a local file
       if (project.image.startsWith('/uploads/')) {
-        const imagePath = path.join(__dirname, '..', 'public', project.image);
+        const imagePath = path.join('/app/uploads', project.image.replace('/uploads/', ''));
         fs.unlink(imagePath, (err) => {
           if (err) console.error('Error deleting project image:', err);
         });
@@ -235,7 +235,7 @@ router.put('/:id', auth, async (req, res) => {
       // Handle media updates logic here
       project.media.forEach(item => {
         if (item.url.startsWith('/uploads/')) {
-          const filePath = path.join(__dirname, '..', 'public', item.url);
+          const filePath = path.join('/app/uploads', item.url.replace('/uploads/', ''));
           fs.unlink(filePath, (err) => {
             if (err) console.error('Error deleting media file:', err);
           });

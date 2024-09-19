@@ -215,10 +215,23 @@ const ProjectEditor = () => {
         headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token }
       });
 
-      // The URL returned from the server now includes the /uploads prefix
+      // Attempt to delete the old image if it exists
+      if (project.image && project.image.startsWith('/uploads/')) {
+        const oldFilename = project.image.split('/').pop();
+        try {
+          await axios.delete(`/api/upload/${oldFilename}`, {
+            headers: { 'x-auth-token': token }
+          });
+        } catch (deleteError) {
+          console.log('Error deleting old image:', deleteError);
+          // Continue with the new image upload even if deletion fails
+        }
+      }
+
+      // Update the project with the new image URL
       setProject(prevProject => ({
         ...prevProject,
-        image: response.data.url // This should now be something like "/uploads/filename.jpg"
+        image: response.data.url
       }));
     } catch (error) {
       console.error('Error uploading image:', error);
