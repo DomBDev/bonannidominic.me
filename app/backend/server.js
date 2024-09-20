@@ -34,8 +34,17 @@ app.use('/api/views', viewRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/auth', authRoutes);
 
+// Set a less restrictive Content Security Policy
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: https://media.licdn.com;"
+  );
+  next();
+});
+
 // Serve uploaded files
-app.use('/uploads', express.static('/app/uploads'));
+app.use('/uploads', express.static('/var/lib/docker/volumes/bonannidominic-uploads-volume/_data'));
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../frontend/build')));
@@ -43,15 +52,6 @@ app.use(express.static(path.join(__dirname, '../frontend/build')));
 // Log all incoming requests
 app.use((req, res, next) => {
   console.log(`Request received: ${req.method} ${req.url}`);
-  next();
-});
-
-// Set a less restrictive Content Security Policy
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;"
-  );
   next();
 });
 
