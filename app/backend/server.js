@@ -34,7 +34,7 @@ app.use('/api/views', viewRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/auth', authRoutes);
 
-// Set a less restrictive Content Security Policy
+// Updated Content Security Policy
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
@@ -43,8 +43,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve uploaded files
-app.use('/uploads', express.static('/var/lib/docker/volumes/bonannidominic-uploads-volume/_data'));
+// Serve uploaded files with correct permissions
+app.use('/uploads', express.static('/var/lib/docker/volumes/bonannidominic-uploads-volume/_data', { dotfiles: 'allow' }));
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../frontend/build')));
