@@ -9,14 +9,18 @@ const auth = require('../middleware/auth');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = '/app/uploads';
+    console.log('Upload directory:', uploadDir);
     if (!fs.existsSync(uploadDir)) {
+      console.log('Creating upload directory');
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const filename = file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname);
+    console.log('Generated filename:', filename);
+    cb(null, filename);
   }
 });
 
@@ -24,13 +28,21 @@ const upload = multer({ storage: storage });
 
 // Handle file upload
 router.post('/', auth, upload.single('file'), (req, res) => {
+  console.log('File upload attempt');
   if (!req.file) {
+    console.log('No file uploaded');
     return res.status(400).send('No file uploaded.');
   }
 
-  // Update the fileUrl to use the /uploads prefix
-  const fileUrl = `/uploads/${req.file.filename}`;
-  res.json({ url: fileUrl });
+  try {
+    const fileUrl = `/uploads/${req.file.filename}`;
+    console.log(`File uploaded successfully: ${fileUrl}`);
+    console.log('File details:', req.file);
+    res.json({ url: fileUrl });
+  } catch (error) {
+    console.error('Error processing uploaded file:', error);
+    res.status(500).json({ message: 'Error processing uploaded file', error: error.message });
+  }
 });
 
 // Handle file deletion
