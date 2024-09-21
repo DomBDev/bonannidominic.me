@@ -44,7 +44,12 @@ app.use((req, res, next) => {
 });
 
 // Serve uploaded files with correct permissions
-app.use('/uploads', express.static('/app/uploads', { dotfiles: 'allow' }));
+app.use('/uploads', express.static('/app/uploads', { 
+  dotfiles: 'allow',
+  setHeaders: (res, path) => {
+    res.set('Cache-Control', 'public, max-age=3600');
+  }
+}));
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../frontend/build')));

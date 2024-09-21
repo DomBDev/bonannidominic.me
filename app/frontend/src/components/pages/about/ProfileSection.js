@@ -21,7 +21,7 @@ const ProfileSection = ({ element }) => {
         </div>
         <SocialLinks />
         <ContactCard />
-        <RandomFact />
+        <RandomQuote />
         <SkillsShowcase />
       </div>
     </motion.div>
@@ -291,26 +291,33 @@ const ContentSection = ({ element }) => {
     );
   };
 
-const RandomFact = () => {
-  const [fact, setFact] = useState("");
+const RandomQuote = () => {
+  const [quote, setQuote] = useState("");
+  const [author, setAuthor] = useState("");
   const controls = useAnimation();
 
-  const facts = [
-    "I can solve a Rubik's cube in under 2 minutes!",
-    "I've visited 20 countries so far.",
-    "I'm fluent in 3 programming languages.",
-    "I love to cook Italian cuisine.",
-    "I've run two marathons.",
-  ];
+  const quotes = [
+    { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+    { text: "Success is not the key to happiness. Happiness is the key to success. If you love what you are doing, you will be successful.", author: "Albert Schweitzer" },
+    { text: "Success usually comes to those who are too busy to be looking for it.", author: "Henry David Thoreau" },
+    { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
+    { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
+    { text: "The only way to achieve the impossible is to believe it is possible.", author: "Charles Kingsleigh" },
+    { text: "Quality is not an act, it is a habit.", author: "Aristotle" },
+    { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+    { text: "If you want to achieve greatness stop asking for permission.", author: "Anonymous" },
+    { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
+];
 
-  const getRandomFact = () => {
-    const newFact = facts[Math.floor(Math.random() * facts.length)];
-    setFact(newFact);
+  const getRandomQuote = () => {
+    const newQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    setQuote(newQuote.text);
+    setAuthor(newQuote.author);
     controls.start({
       opacity: [0, 1],
       transition: { duration: 0.5 }
     });
-    animateText(newFact);
+    animateText(newQuote.text);
   };
 
   const animateText = async (text) => {
@@ -320,12 +327,12 @@ const RandomFact = () => {
         opacity: 1,
         transition: { duration: 0.05 }
       });
-      setFact(text.slice(0, i));
+      setQuote(text.slice(0, i));
     }
   };
 
   useEffect(() => {
-    getRandomFact();
+    getRandomQuote();
   }, []);
 
   return (
@@ -335,15 +342,16 @@ const RandomFact = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.6 }}
     >
-      <h3 className="text-2xl font-semibold text-primary mb-3">Random Fact</h3>
-      <motion.p className="text-text text-lg flex-grow" animate={controls}>{fact}</motion.p>
+      <h3 className="text-2xl font-semibold text-primary mb-3">Random Quote</h3>
+      <motion.p className="text-text text-lg flex-grow" animate={controls}>"{quote}"</motion.p>
+      <p className="text-text text-sm italic mt-2">- {author}</p>
       <motion.button
         className="mt-4 px-4 py-2 bg-accent text-background rounded-full font-semibold transition-all duration-300 flex items-center justify-center"
         whileHover={{ backgroundColor: "var(--color-primary)", color: "var(--color-background)" }}
-        onClick={getRandomFact}
+        onClick={getRandomQuote}
       >
         <FaShuffle className="mr-2" />
-        Shuffle Fact
+        New Quote
       </motion.button>
     </motion.div>
   );
