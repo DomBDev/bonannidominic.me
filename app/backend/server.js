@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 });
 
 // Serve uploaded files with correct permissions
-app.use('/uploads', express.static('/var/lib/docker/volumes/bonannidominic-uploads-volume/_data', { dotfiles: 'allow' }));
+app.use('/uploads', express.static('/app/uploads', { dotfiles: 'allow' }));
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../frontend/build')));

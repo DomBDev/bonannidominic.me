@@ -21,7 +21,7 @@ COPY --from=frontend-build /app/frontend/build ./frontend/build
 
 # Create a shared volume for uploads and set permissions
 VOLUME /app/uploads
-RUN mkdir -p /app/uploads && chmod 755 /app/uploads && chown -R node:node /app/uploads
+RUN mkdir -p /app/uploads && chmod 777 /app/uploads
 
 # Switch to non-root user
 USER node
