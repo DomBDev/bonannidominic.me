@@ -21,7 +21,7 @@ COPY --from=frontend-build /app/frontend/build ./frontend/build
 
 # Create a shared volume for uploads and set permissions
 VOLUME /app/uploads
-RUN mkdir -p /app/uploads && chown -R node:node /app/uploads && chmod 755 /app/uploads
+RUN mkdir -p /app/uploads && chown -R node:node /app/uploads && chmod 777 /app/uploads
 
 # Switch to non-root user
 USER node
@@ -29,4 +29,8 @@ USER node
 # Create uploads directory and set permissions
 WORKDIR /app/backend
 EXPOSE 5000
+
+# Add this line to ensure the uploads directory exists and has correct permissions
+RUN mkdir -p /app/uploads && chmod 777 /app/uploads
+
 CMD ["node", "server.js"]
